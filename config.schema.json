@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pln/config.schema.json",
+  "title": "pln config",
+  "description": "Конфиг приложения pln (CalDAV-credentials + параметры TUI/таймлайна).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["login", "password", "todoUrl"],
+  "properties": {
+    "login": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Логин пользователя CalDAV"
+    },
+    "password": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Пароль пользователя CalDAV"
+    },
+    "todoUrl": {
+      "type": "string",
+      "pattern": "^https?://\\S+[^/]$",
+      "description": "URL коллекции задач CalDAV без слэша в конце",
+      "examples": ["http://127.0.0.1:5232/user/tasks-collection"]
+    },
+    "tempDirectory": {
+      "type": "string",
+      "default": "",
+      "description": "Каталог для временных файлов (пусто — системный tmp)"
+    },
+    "commandAliases": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "default": {},
+      "description": "Алиасы команд CLI: { alias: 'полная команда' }"
+    },
+
+    "daysOnTimeline": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 7,
+      "description": "Сколько дней показывать на таймлайне"
+    },
+    "rowsOnTimeline": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 5,
+      "description": "Сколько строк задач на таймлайне"
+    },
+    "hoursStart": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 23,
+      "default": 9,
+      "description": "Начало рабочего дня (час)"
+    },
+    "hoursStep": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24,
+      "default": 2,
+      "description": "Шаг между метками часов"
+    },
+    "cellWidth": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 9,
+      "description": "Ширина ячейки таймлайна (символов)"
+    },
+    "timeCellWidth": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 7,
+      "description": "Ширина колонки времени (символов)"
+    },
+    "dateStart": {
+      "type": "string",
+      "enum": ["monday", "sunday"],
+      "default": "monday",
+      "description": "День, с которого начинается неделя"
+    },
+
+    "tuiCollapseSubtasks": {
+      "type": "boolean",
+      "default": true,
+      "description": "Сворачивать подзадачи в TUI по умолчанию"
+    },
+
+    "tagPrefix": {
+      "type": "string",
+      "default": "@",
+      "description": "Префикс перед каждым тегом в выводе задач (cli/tui). Примеры: '@', '#'"
+    },
+
+    "tagColor": {
+      "type": "string",
+      "default": "gray",
+      "description": "Цвет тегов: chalk-имя ('gray','red','yellow',...) или hex '#RRGGBB'."
+    },
+
+    "parentDisplayLen": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 8,
+      "description": "Длина блока parent при выводе задач. В режиме 'summary' — макс. символов summary родителя; в 'uid' — обрезается до min(len,4)."
+    },
+
+    "tagStatuses": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["icon"],
+        "properties": {
+          "icon":  { "type": "string", "description": "Текстовая иконка статуса, напр. '[s]'" },
+          "color": { "type": "string", "description": "chalk-имя ('gray','red',...) или hex '#RRGGBB'" }
+        }
+      },
+      "description": "Кастомные визуальные статусы для тегов. Применяется только к задачам со статусом NEEDS-ACTION. При нескольких совпадениях побеждает последний по порядку ключей.",
+      "examples": [{ ".cancel": { "icon": "[s]", "color": "gray" } }]
+    },
+
+    "sort": {
+      "type": "object",
+      "description": "Правила сортировки списка задач. liftTags — поднимают вверх, dropTags — опускают вниз. Внутри одного уровня — по приоритету.",
+      "additionalProperties": false,
+      "properties": {
+        "liftTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["next", "scheduled"],
+          "description": "Категории, наличие которых поднимает задачу вверх списка."
+        },
+        "dropTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["trash", "someday", "cancel", "stop"],
+          "description": "Категории, наличие которых опускает задачу вниз списка."
+        }
+      }
+    },
+
+    "showingTaskFields": {
+      "type": "object",
+      "description": "Какие поля задачи выводить в console-printer (cli/tui). Дефолты живут в src/config.js. Особое: 'uid' — false|'short'|'full'; 'parent' — false|'uid'|'summary'."
+    },
+
+    "taskStatusIcons": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Иконки статусов задачи: ключ — VTODO STATUS или группа (NEEDS-ACTION, COMPLETED, CANCELLED, IN-PROGRESS, TIMER, SOMEDAY, LATER). Дефолты в src/config.js, переопределяются ключами здесь.",
+      "examples": [{ "NEEDS-ACTION": "-", "COMPLETED": "+" }]
+    }
+  }
+}

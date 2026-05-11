@@ -1,0 +1,12 @@
+{
+  "name": "@pln/tui-vue-blessed",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "dependencies": {
+    "@pln/core": "workspace:*",
+    "@vue/reactivity": "^3.5.34",
+    "neo-blessed": "^0.2.0"
+  }
+}

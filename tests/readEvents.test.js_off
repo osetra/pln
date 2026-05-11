@@ -1,0 +1,17 @@
+import { caldavClient } from '../src/external/caldav/client.js'
+
+export default async function readEvents() {
+    const tasks = await caldavClient.read()
+    dg.addTestResult('tasks.length', tasks.length)
+
+    if (tasks.length !== 1) {
+        throw new Error(`Ожидался 1 таск, получено: ${tasks.length}`)
+    }
+
+    const summary = tasks[0].summary
+    dg.addTestResult('summary', summary)
+
+    if (!summary.includes('831')) {
+        throw new Error(`summary не содержит "831": "${summary}"`)
+    }
+}

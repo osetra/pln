@@ -1,0 +1,14 @@
+{
+  "name": "@pln/tui-enq",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/tui.js",
+  "imports": {
+    "#tui/*": "./src/*"
+  },
+  "dependencies": {
+    "@pln/core": "workspace:*",
+    "enquirer": "^2.4.1"
+  }
+}

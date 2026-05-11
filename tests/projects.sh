@@ -1,0 +1,1 @@
+/home/haltura/Documents/2-project-center/librarian/tasks-scripts/projects.sh

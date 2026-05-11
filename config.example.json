@@ -1,0 +1,50 @@
+{
+  "$schema": "./config.schema.json",
+  "login": "YOUR_USERNAME",
+  "password": "YOUR_PASSWORD",
+  "todoUrl": "http://127.0.0.1:5232/YOUR_USERNAME/YOUR_CALENDAR_ID",
+  "tempDirectory": "/tmp/pln",
+  "commandAliases": {},
+  "daysOnTimeline": 3,
+  "rowsOnTimeline": 7,
+  "hoursStart": 9,
+  "hoursStep": 2,
+  "cellWidth": 31,
+  "timeCellWidth": 7,
+  "dateStart": "today",
+  "tuiCollapseSubtasks": true,
+  "tagPrefix": " ",
+  "tagColor": "gray",
+  "parentDisplayLen": 8,
+  "sort": {
+    "liftTags": [],
+    "dropTags": ["trash", "someday", "cancel"]
+  },
+  "tagStatuses": {
+    "cancel": { "icon": "[c]", "color": "gray" },
+    "trash":  { "icon": "[t]", "color": "gray" },
+    "someday":{ "icon": "[s]", "color": "blue" },
+    "later":  { "icon": "[l]", "color": "blue" },
+    "next":   { "icon": "[>]", "color": "yellow" },
+    "PROJECT":{ "icon": "[P]", "color": "#FF8C00" }
+  },
+  "showingTaskFields": {
+    "summary": true,
+    "status": true,
+    "uid": false,
+    "dateDue": true,
+    "parent": "summary",
+    "categories": true,
+    "activeSession": true,
+    "timer": false
+  },
+  "taskStatusIcons": {
+    "NEEDS-ACTION": " - ",
+    "COMPLETED":    " + ",
+    "CANCELLED":    "[-]",
+    "IN-PROGRESS":  "[.]",
+    "TIMER":        "[o]",
+    "SOMEDAY":      "[s]",
+    "LATER":        "[l]"
+  }
+}
