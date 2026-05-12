@@ -4,13 +4,11 @@ import { renderMermaidASCII } from 'beautiful-mermaid'
 
 import { Window } from '#tui/windows/Window/index.js'
 import { state }  from '#tui/state.js'
-
-const MAX_SUMMARY = 30
+import { buildMermaid } from '@pln/core/services/taskFlowchart.js'
 
 /**
- * Окно: ASCII flowchart цепочки задач по DEPENDS-ON вокруг текущей задачи.
- * Вверх: задачи, от которых зависит текущая (предшественники, рекурсивно).
- * Вниз: задачи, которые зависят от текущей (потомки, рекурсивно).
+ * Окно: ASCII-flowchart по DEPENDS-ON для всех задач текущего scope
+ * (state.tasks). Текущая задача выделяется маркером ⏿.
  */
 export default class FlowchartWindow extends Window {
   constructor() {
@@ -26,14 +24,14 @@ export default class FlowchartWindow extends Window {
   open() {
     console.clear()
 
-    if (!state.currentTask) { this.close(); return }
+    const code = buildMermaid(state.tasks, {
+      centerUid: state.currentTask?.uid,
+      onlyConnected: true,
+    })
 
-    const { nodes, edges } = this.#collectChain(state.currentTask)
-
-    if (edges.length === 0) {
-      console.log(chalk.gray('⊘ У задачи нет предшественников и потомков'))
+    if (!code.includes('-->')) {
+      console.log(chalk.gray('⊘ В этом scope нет связей DEPENDS-ON'))
     } else {
-      const code = this.#buildMermaid(nodes, edges, state.currentTask.uid)
       try {
         console.log(renderMermaidASCII(code, { colorMode: 'none' }))
       } catch (err) {
@@ -49,73 +47,5 @@ export default class FlowchartWindow extends Window {
     })
 
     this.prompt.run().catch(() => {}).finally(() => this.close())
-  }
-
-  /**
-   * Собирает уникальные узлы и рёбра вокруг центральной задачи (рекурсивно
-   * вверх по dependsOn и вниз — кто на неё ссылается).
-   * @param {Object} center
-   * @returns {{ nodes: Object[], edges: [string, string][] }}
-   */
-  #collectChain(center) {
-    const byUid = new Map(state.tasks.map(t => [t.uid, t]))
-    const nodes = new Map()
-    const edges = []
-    const visited = new Set()
-
-    const walk = (task) => {
-      if (!task || visited.has(task.uid)) return
-      visited.add(task.uid)
-      nodes.set(task.uid, task)
-
-      for (const depUid of (task.dependsOn || [])) {
-        const dep = byUid.get(depUid)
-        if (dep) {
-          edges.push([dep.uid, task.uid])
-          nodes.set(dep.uid, dep)
-          walk(dep)
-        }
-      }
-      for (const t of state.tasks) {
-        if (t.dependsOn?.includes(task.uid)) {
-          edges.push([task.uid, t.uid])
-          nodes.set(t.uid, t)
-          walk(t)
-        }
-      }
-    }
-
-    walk(center)
-    return { nodes: [...nodes.values()], edges }
-  }
-
-  /**
-   * Строит mermaid-код графа.
-   * @param {Object[]} nodes
-   * @param {[string,string][]} edges
-   * @param {string} centerUid - текущая задача (выделяется ⏿)
-   * @returns {string}
-   */
-  #buildMermaid(nodes, edges, centerUid) {
-    const uid2id = new Map(nodes.map((t, i) => [t.uid, 'n' + i]))
-    const lines = ['graph LR']
-    for (const t of nodes) {
-      const mark = t.uid === centerUid ? '⏿ ' : ''
-      lines.push(`  ${uid2id.get(t.uid)}["${mark}${this.#escape(t.summary)}"]`)
-    }
-    for (const [from, to] of edges) {
-      lines.push(`  ${uid2id.get(from)} --> ${uid2id.get(to)}`)
-    }
-    return lines.join('\n')
-  }
-
-  /**
-   * Подрезает summary и убирает символы, ломающие mermaid внутри "...".
-   * @param {string} s
-   * @returns {string}
-   */
-  #escape(s) {
-    const trimmed = (s || '').slice(0, MAX_SUMMARY) + (s?.length > MAX_SUMMARY ? '…' : '')
-    return trimmed.replace(/["\n\r\\]/g, ' ').replace(/\s+/g, ' ').trim()
   }
 }

@@ -13,6 +13,7 @@ export default class ControlParams extends BaseParams {
         backendFilter: 'boolean',
         showDescription: 'boolean',
         fullUid: 'boolean',
+        flowchart: 'boolean',
         ink: 'boolean',
         vue: 'boolean',
         blessed: 'boolean',
@@ -47,6 +48,9 @@ export default class ControlParams extends BaseParams {
 
         /** @type {true|undefined} Флаг: Печатать полные uid вместо shortUid */
         this.fullUid = flags.fullUid
+
+        /** @type {true|undefined} Флаг: Вывести ASCII-flowchart по DEPENDS-ON для текущего scope */
+        this.flowchart = flags.flowchart
 
         /** @type {true|undefined} Флаг: Запустить экспериментальный TUI на ink (--ink) */
         this.ink = flags.ink

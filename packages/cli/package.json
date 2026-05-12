@@ -5,7 +5,8 @@
   "type": "module",
   "main": "./src/cli.js",
   "dependencies": {
-    "@pln/core": "workspace:*"
+    "@pln/core": "workspace:*",
+    "beautiful-mermaid": "^1.1.3"
   },
   "peerDependencies": {
     "@pln/tui-enq": "workspace:*",
@@ -14,9 +15,17 @@
     "@pln/tui-vue-blessed": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@pln/tui-enq": { "optional": true },
-    "@pln/tui-ink": { "optional": true },
-    "@pln/tui-vue": { "optional": true },
-    "@pln/tui-vue-blessed": { "optional": true }
+    "@pln/tui-enq": {
+      "optional": true
+    },
+    "@pln/tui-ink": {
+      "optional": true
+    },
+    "@pln/tui-vue": {
+      "optional": true
+    },
+    "@pln/tui-vue-blessed": {
+      "optional": true
+    }
   }
 }

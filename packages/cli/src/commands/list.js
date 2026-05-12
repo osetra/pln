@@ -1,4 +1,5 @@
 import { Command }           from './command.js'
+import { renderMermaidASCII } from 'beautiful-mermaid'
 import { Filter, Condition } from '@pln/core/dto/filter.js'
 
 import { config }         from '@pln/core/config.js'
@@ -8,6 +9,7 @@ import { consolePrinter } from '@pln/core/printer/console-printer.js'
 import analizeTasks from '@pln/core/services/analizeTasks.js'
 import { frontendFilter } from '@pln/core/utils/frontend-filter.js'
 import { sessionsService } from '@pln/core/services/sessions.js'
+import { buildMermaid } from '@pln/core/services/taskFlowchart.js'
 
 export default class ListCommand extends Command {
 
@@ -64,6 +66,17 @@ export default class ListCommand extends Command {
         if (options.isThreeLines) {
             const tasksWithTreeLine = consolePrinter.print(filteredTasksWithShortUid, { print: false })
             return tasksWithTreeLine
+        }
+
+        if (this.commandParams?.controlParams?.flowchart) {
+            const code = buildMermaid(filteredTasksWithShortUid, { onlyConnected: true })
+            if (!code.includes('-->')) {
+                console.log('⊘ В выборке нет связей DEPENDS-ON')
+            } else {
+                console.log(renderMermaidASCII(code, { colorMode: 'none' }))
+            }
+            if (verbose) console.timeEnd('fullTime')
+            return tasksAnalized
         }
 
         consolePrinter.print(tasksAnalized, options)

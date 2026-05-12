@@ -57,6 +57,7 @@
 | `--backendFilter`| `-b` | bool   | Фильтрация на сервере           |
 | `--showDescription`| `-sd` | bool | Печатать описание под каждой задачей |
 | `--fullUid`      | `-fu`| bool   | Печатать полные uid (без shortUid) — для edit при коллизиях |
+| `--flowchart`    | `-F` | bool   | ASCII-flowchart по DEPENDS-ON для текущей выборки |
 | `--ink`          |      | bool   | Запустить экспериментальный TUI на ink (`npm i ink react`) |
 
 ## Типы фильтров
