@@ -39,6 +39,7 @@ import clearSelection from './selection/clearSelection.js'
 import showHelp from './system/showHelp.js'
 import showReport from './system/showReport.js'
 import toggleTimeline from './system/toggleTimeline.js'
+import timelineCursor from './system/timelineCursor.js'
 import refresh from './system/refresh.js'
 import openSettings from './system/openSettings.js'
 
@@ -50,7 +51,7 @@ const handlers = [
     editStatus, editPriority, editCategories, editDate, changeParent,
     toggleSelection, clearSelection,
     addTask, addSubtask, deleteTask,
-    showHelp, showReport, toggleTimeline, refresh, openSettings
+    showHelp, showReport, toggleTimeline, timelineCursor, refresh, openSettings
 ]
 
 /** @type {Object.<string, Function>} */

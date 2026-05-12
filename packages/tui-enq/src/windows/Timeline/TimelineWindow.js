@@ -88,7 +88,7 @@ export default class Timeline {
             ? ` [${marker.label} ${this.state.currentMarkerIndex+1}/${cell.markers.length}]`
             : ''
 
-        const hint = '\n  # — скрыть таймлайн  · управление курсором в разработке'
+        const hint = '\n  # скрыть · ↑↓←→ курсор · 1-4 инструмент'
 
         return toolsStr + markerInfo + hint
     }
