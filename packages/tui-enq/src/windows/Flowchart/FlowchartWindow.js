@@ -35,7 +35,7 @@ export default class FlowchartWindow extends Window {
     } else {
       const code = this.#buildMermaid(nodes, edges, state.currentTask.uid)
       try {
-        console.log(renderMermaidASCII(code))
+        console.log(renderMermaidASCII(code, { colorMode: 'none' }))
       } catch (err) {
         console.log(chalk.red('Не удалось отрендерить:\n') + err.message)
         console.log(chalk.gray('\nИсходник:\n') + code)
