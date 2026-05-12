@@ -33,7 +33,7 @@ export default class FlowchartWindow extends Window {
       console.log(chalk.gray('⊘ В этом scope нет связей DEPENDS-ON'))
     } else {
       try {
-        console.log(renderMermaidASCII(code, { colorMode: 'none' }))
+        console.log(renderMermaidASCII(code, { colorMode: 'none', boxBorderPadding: 0 }))
       } catch (err) {
         console.log(chalk.red('Не удалось отрендерить:\n') + err.message)
         console.log(chalk.gray('\nИсходник:\n') + code)

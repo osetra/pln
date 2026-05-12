@@ -73,7 +73,7 @@ export default class ListCommand extends Command {
             if (!code.includes('-->')) {
                 console.log('⊘ В выборке нет связей DEPENDS-ON')
             } else {
-                console.log(renderMermaidASCII(code, { colorMode: 'none' }))
+                console.log(renderMermaidASCII(code, { colorMode: 'none', boxBorderPadding: 0 }))
             }
             if (verbose) console.timeEnd('fullTime')
             return tasksAnalized
