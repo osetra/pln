@@ -55,6 +55,9 @@ export class Command {
         if (taskParams.categories) {
             taskProps.categories = taskParams.categories
         }
+        if (taskParams.addCategories) {
+            taskProps.addCategories = taskParams.addCategories
+        }
         if (taskParams.priority || taskParams.priority === 0) {
             taskProps.priority = taskParams.priority
         }
