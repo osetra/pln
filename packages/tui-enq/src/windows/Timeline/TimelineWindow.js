@@ -70,24 +70,27 @@ export default class Timeline {
     }
     
     /**
-     * Рендерит строку инструментов
+     * Рендерит строку инструментов и подсказку по управлению
      * @returns {string}
      */
     #renderTools() {
         const {x, y} = this.getLimitedXY()
         const cell = this.grid?.[y]?.[x]
-        
+
         const toolsStr = this.tools.map(t => {
             return t.name === this.state.activeTool.name
                 ? `[${t.emoji}${t.name}]`
                 : ` ${t.emoji}${t.name} `
         }).join('  ')
-        
-        const markerInfo = cell?.markers?.[this.state.currentMarkerIndex]
-            ? `[${markerInfo.label} ${this.state.currentMarkerIndex+1}/${cell.markers.length}]`
+
+        const marker = cell?.markers?.[this.state.currentMarkerIndex]
+        const markerInfo = marker
+            ? ` [${marker.label} ${this.state.currentMarkerIndex+1}/${cell.markers.length}]`
             : ''
-            
-        return toolsStr + markerInfo
+
+        const hint = '\n  # — скрыть таймлайн  · управление курсором в разработке'
+
+        return toolsStr + markerInfo + hint
     }
     
     /**
@@ -101,23 +104,15 @@ export default class Timeline {
     }
     
     /**
-     * Ограничивает координаты курсора
+     * Ограничивает координаты курсора в пределах сетки
      * @returns {{x: number, y: number}}
      */
     getLimitedXY() {
-        const y = this.state.cursorY < 0 
-            ? 0 
-            : this.state.cursorY >= this.state.rowsOnTimeline
-                ? (this.state.rowsOnTimeline - 1)
-                : this.state.cursorY
-
-        const x = this.state.cursorX < 0 
-            ? 0 
-            : this.state.cursorX >= this.state.daysOnTimeline - 1 
-                ? this.state.daysOnTimeline 
-                : this.state.cursorX
-                
-        return {x, y}
+        const clamp = (v, max) => v < 0 ? 0 : v >= max ? max - 1 : v
+        return {
+            x: clamp(this.state.cursorX, this.state.daysOnTimeline),
+            y: clamp(this.state.cursorY, this.state.rowsOnTimeline),
+        }
     }
     
     /**
