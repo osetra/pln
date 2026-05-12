@@ -366,8 +366,13 @@ export const consolePrinter = {
 
         let dependsOnMark = ''
         if (fields.dependsOn && task.dependsOn?.length) {
-            const marks = task.dependsOn.map(uid => '⊘' + uid.slice(-4))
-            dependsOnMark = chalk.red(marks.join(' '))
+            const statuses = task.customProperties?.dependsOnStatuses || {}
+            dependsOnMark = task.dependsOn.map(uid => {
+                const short = uid.slice(-4)
+                const s = statuses[uid]
+                if (s === 'COMPLETED' || s === 'CANCELLED') return chalk.green('✓' + short)
+                return chalk.red('⊘' + short)
+            }).join(' ')
         }
 
         const parent = renderParent(task, fields.parent)
@@ -405,7 +410,7 @@ export const consolePrinter = {
             customProperties,
             ...dateList.map(dt => chalk.gray(dt))
         ].filter(Boolean).join(' ')
-        return line
+        return task.customProperties?.isBlocked ? chalk.dim(line) : line
     },
 
 

@@ -84,8 +84,9 @@ export function buildMermaid(tasks, {
   const uid2id = new Map(nodes.map((t, i) => [t.uid, 'n' + i]))
   const lines = [`graph ${direction}`]
   for (const t of nodes) {
-    const mark = centerUid && t.uid === centerUid ? '⏿ ' : ''
-    lines.push(`  ${uid2id.get(t.uid)}["${mark}${escapeLabel(t.summary)}"]`)
+    const center = centerUid && t.uid === centerUid ? '⏿ ' : ''
+    const done = (t.status === 'COMPLETED' || t.status === 'CANCELLED') ? '✓ ' : ''
+    lines.push(`  ${uid2id.get(t.uid)}["${center}${done}${escapeLabel(t.summary)}"]`)
   }
   for (const [from, to] of edges) {
     const fid = uid2id.get(from)
