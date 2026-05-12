@@ -24,8 +24,6 @@ export default class PredecessorEditor extends Window {
       'k': this.up.bind(this),   'л': this.up.bind(this),
       'q': () => this.prompt.keypress('\x1b', { name: 'escape' }),
       'й': () => this.prompt.keypress('\x1b', { name: 'escape' }),
-      'l': () => this.prompt.submit(),
-      'д': () => this.prompt.submit(),
       'd': this.removePredecessor.bind(this),
       'в': this.removePredecessor.bind(this),
       '?': this.showHelp.bind(this),
@@ -39,7 +37,10 @@ export default class PredecessorEditor extends Window {
 
     const tasks = this.#availableTasks()
     const choices = buildChoices(tasks, state.selectedTasks)
-    const initial = this.#findInitial(tasks)
+    const existing = new Set(state.currentTask.dependsOn || [])
+    const initial = tasks
+      .map((t, i) => existing.has(t.uid) ? i : -1)
+      .filter(i => i >= 0)
 
     const tasksHeight = calcTasksHeight({
       terminalHeight: process.stdout.rows,
@@ -49,15 +50,17 @@ export default class PredecessorEditor extends Window {
       tasksCount: tasks.length,
     })
 
-    this.prompt = new Enquirer.Select({
+    this.prompt = new Enquirer.MultiSelect({
       limit: tasksHeight,
-      message: '⊘ Выбор предшественника (d — убрать, q — отмена):',
+      message: '⊘ Предшественники (space — отметить, Enter — сохранить, d — очистить, q — отмена):',
       choices,
       initial,
       pointer: '⏿ ',
       header: () => headerString(state.tasks, null),
       footer: () => footerString(state.currentTask, FOOTER_HEIGHT),
-      result(name) { return this.find(name)?.value },
+      result(names) {
+        return names.map(n => this.find(n)?.value).filter(Boolean)
+      },
     })
 
     this.prompt.clear = function() {
@@ -66,7 +69,7 @@ export default class PredecessorEditor extends Window {
     }
 
     this.prompt.run()
-      .then(task => this.onSelect(task?.uid))
+      .then(selectedTasks => this.onSubmit(selectedTasks))
       .catch(() => this.close())
   }
 
@@ -89,24 +92,15 @@ export default class PredecessorEditor extends Window {
     return state.tasks.filter(t => !blocked.has(t.uid))
   }
 
-  /**
-   * Индекс текущего предшественника в списке (или 0).
-   * @param {Object[]} tasks
-   * @returns {number}
-   */
-  #findInitial(tasks) {
-    const existing = state.currentTask.dependsOn?.[0]
-    if (!existing) return 0
-    const idx = tasks.findIndex(t => t.uid === existing)
-    return idx >= 0 ? idx : 0
-  }
+  async onSubmit(selectedTasks) {
+    if (!Array.isArray(selectedTasks)) return this.close()
+    const newUids = selectedTasks.map(t => t.uid)
+    const oldUids = state.currentTask.dependsOn || []
+    const sameSet = newUids.length === oldUids.length
+      && newUids.every(u => oldUids.includes(u))
+    if (sameSet) return this.close()
 
-  async onSelect(uid) {
-    if (!uid) return this.close()
-    const current = state.currentTask.dependsOn?.[0]
-    if (uid === current) return this.close()
-
-    this.updateTaskProp({ dependsOn: [uid] })
+    this.updateTaskProp({ dependsOn: newUids })
     return this.close()
   }
 
