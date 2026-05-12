@@ -3,6 +3,7 @@ import treeify from 'treeify';
 
 import { configRef } from '../services/getConfigRef.js';
 import { cacheManager } from '../cache/cache-manager.js';
+import sortTasks from '../services/sortTasks.js';
 
 /** @typedef {import("../dto/task").default} Task */
 /** @typedef {import("../dto/task").TaskWithTreeLine} TaskWithTreeLine */
@@ -76,7 +77,7 @@ export const consolePrinter = {
             fullUid: false,
         }, ...options}
 
-        const sortedTasks = this.sortTasks(tasks)
+        const sortedTasks = sortTasks(tasks)
         const [ tasksView, tasksWithTreeLine ] = this.getTasksTree(sortedTasks, options)
 
         if (!options.print) return tasksWithTreeLine
@@ -400,87 +401,6 @@ export const consolePrinter = {
     },
 
 
-    /**
-     * @version 7
-     * переписано с v6 с gpt mini 2025-09-27
-     *
-     * Сортирует массив задач так, чтобы:
-     *   • отменённые (CANCELLED) – в самом низу;
-     *   • выполненные (COMPLETED) – ниже активных, но выше отменённых;
-     *   • приоритет учитывается **только внутри одной категории‑группы**
-     *     (up → neutral → down);
-     *   • категории, помеченные в `categorySortOrder` как «up» поднимаются,
-     *     а «down» опускаются;
-     *   • если всё равно одинаково – сохраняется исходный порядок.
-     *
-     * @param {Task[]} tasks
-     * @returns {Task[]}
-     */
-    sortTasks(tasks) {
-        const liftTags = new Set(configRef.value.sort?.liftTags || [])
-        const dropTags = new Set(configRef.value.sort?.dropTags || [])
-
-        /** Возвращает уровень категории:
-         *   1  – есть хотя бы один тег из liftTags
-         *   0  – нейтрально
-         *  -1  – есть хотя бы один тег из dropTags
-         */
-        const getCatLevel = task => {
-            const cats = task.categories || [];
-            if (cats.some(c => liftTags.has(c))) return 1;
-            if (cats.some(c => dropTags.has(c))) return -1;
-            return 0;
-        };
-
-        tasks.sort((a, b) => {
-            /* -------------------------------------------------
-             * 1. Статусы: CANCELLED → внизу, COMPLETED → ниже
-             *    активных, но выше CANCELLED
-             * ------------------------------------------------- */
-            if (a.status === 'CANCELLED' && b.status !== 'CANCELLED') return 1;
-            if (a.status !== 'CANCELLED' && b.status === 'CANCELLED') return -1;
-
-            if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return 1;
-            if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return -1;
-
-            /* -------------------------------------------------
-             * 2. Категориальный уровень (up / neutral / down)
-             * ------------------------------------------------- */
-            const aLevel = getCatLevel(a);
-            const bLevel = getCatLevel(b);
-            if (aLevel !== bLevel) return bLevel - aLevel; // up (1) выше, down (-1) ниже
-
-            /* -------------------------------------------------
-             * 3. Приоритет – сравниваем только внутри одного уровня
-             * ------------------------------------------------- */
-            const aPrio = a.priority ?? 0;   // 0 = «нет приоритета»
-            const bPrio = b.priority ?? 0;
-
-            // если обе задачи без приоритета – оставляем порядок
-            if (aPrio === 0 && bPrio === 0) return 0;
-
-            // если только одна имеет приоритет – она выше
-            if (aPrio === 0) return 1;
-            if (bPrio === 0) return -1;
-
-            // оба имеют приоритет: 1 — высший, 9 — низший
-            return aPrio - bPrio;
-
-            /* -------------------------------------------------
-             * 4. (Опционально) если нужны дополнительные правила
-             *    их можно добавить после приоритета.
-             * ------------------------------------------------- */
-        });
-
-        return tasks;
-    },
-
-    /**
-     * formatDates(data) -> {
-     *   list: ['✅2025-08-25', '🟧2025-08-26', ...],
-     *   map: { created: '2025-08-25', ... }
-     * }
-     */
     formatDates(data = {}) {
         const labels = {
             created:   '🌱',
