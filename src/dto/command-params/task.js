@@ -66,7 +66,5 @@ export default class TaskParams extends DateParams {
 
         /** @type {string|undefined} Ссылка на задачу */
         this.href        = flags.href
-
-        if (!this.href && this.uid) this.href = this.uid + '.ics'
     }
 }

@@ -65,8 +65,8 @@ export const tasksService = {
      * @param {'uid'|'href'} type
      */
     async delete(uidsOrHrefs, type) {
-        const result = await caldavClient.delete(uidsOrHrefs, type)
         const arr = Array.isArray(uidsOrHrefs) ? uidsOrHrefs : [uidsOrHrefs]
+        const result = await caldavClient.delete(arr, type)
         if (type === 'uid') {
             arr.forEach(uid => cacheManager.removeTask(uid))
         } else {
