@@ -18,6 +18,7 @@ export default class TaskParams extends DateParams {
         cancel:        'boolean',
         parent:        'string',
         predecessors:  'array',
+        addPredecessors: 'array',
         href:          'string',
         ...DateParams.PROPERTY_TYPES,
     }
@@ -63,6 +64,9 @@ export default class TaskParams extends DateParams {
 
         /** @type {string[]|undefined} UID предшественников (DEPENDS-ON) — задачи, которые должны быть сделаны до этой */
         this.predecessors = flags.predecessors
+
+        /** @type {string[]|undefined} UID предшественников для дозаписи (не перезаписывает существующие) */
+        this.addPredecessors = flags.addPredecessors
 
         /** @type {string|undefined} Ссылка на задачу */
         this.href        = flags.href

@@ -24,7 +24,8 @@
 | `--priority`   | `-pr`| number | Приоритет              |
 | `--uid`        | `-u` | string | UID задачи             |
 | `--parent`     | `-P` | string | UID родительской задачи |
-| `--predecessors` | `--pre`, `--after` | array | UID задач-предшественников (DEPENDS-ON). Можно повторять флаг |
+| `--predecessors` | `--pre`, `--after` | array | UID задач-предшественников (DEPENDS-ON). Перезаписывает. Можно повторять флаг |
+| `--add-predecessor` | `--ap`, `--add-pre`, `--add-after` | array | Дозаписать предшественника (не затирает существующих). Можно повторять |
 | `--due`        | `-e` | date   | Дедлайн                |
 | `--start`      |      | date   | Дата начала            |
 | `--x`          |      | bool   | Пометить COMPLETED     |

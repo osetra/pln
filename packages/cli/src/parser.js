@@ -35,6 +35,12 @@ export const parser = {
         'pre': 'predecessors',
         'predecessors': 'predecessors',
         'after': 'predecessors',
+
+        'ap': 'addPredecessors',
+        'addpre': 'addPredecessors',
+        'addpredecessor': 'addPredecessors',
+        'addpredecessors': 'addPredecessors',
+        'addafter': 'addPredecessors',
     },
 
     /**
