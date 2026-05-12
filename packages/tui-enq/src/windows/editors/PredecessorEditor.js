@@ -52,14 +52,14 @@ export default class PredecessorEditor extends Window {
 
     this.prompt = new Enquirer.MultiSelect({
       limit: tasksHeight,
-      message: '⊘ Предшественники (space — отметить, Enter — сохранить, d — очистить, q — отмена):',
+      message: '⊘ Предшественники — SPACE отметить · ENTER сохранить · d очистить · q отмена',
       choices,
       initial,
       pointer: '⏿ ',
       header: () => headerString(state.tasks, null),
       footer: () => footerString(state.currentTask, FOOTER_HEIGHT),
-      result(names) {
-        return names.map(n => this.find(n)?.value).filter(Boolean)
+      result() {
+        return this.choices.filter(c => c.enabled).map(c => c.value)
       },
     })
 
@@ -96,6 +96,11 @@ export default class PredecessorEditor extends Window {
     if (!Array.isArray(selectedTasks)) return this.close()
     const newUids = selectedTasks.map(t => t.uid)
     const oldUids = state.currentTask.dependsOn || []
+
+    // защита от случайного Enter без отметок: ничего не отмечено, но раньше
+    // было — не затираем. Для очистки используется `d`.
+    if (newUids.length === 0 && oldUids.length > 0) return this.close()
+
     const sameSet = newUids.length === oldUids.length
       && newUids.every(u => oldUids.includes(u))
     if (sameSet) return this.close()
