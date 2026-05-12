@@ -251,7 +251,11 @@ export default class Sessions extends Window {
      * @returns {string}
      */
     #dayKeyFor(date) {
-        const dateStr = date.toISOString().slice(0, 10);
+        // локальная YYYY-MM-DD, чтобы группировка совпадала с label
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${d}`;
         const label = date.toLocaleDateString('ru-RU', {
             weekday: 'short',
             day: 'numeric',
@@ -301,8 +305,9 @@ export default class Sessions extends Window {
         if (Object.keys(groupedByDay).length === 0) {
             console.log(chalk.gray('🤷 Нет задач за указанный период'));
         } else {
-            Object.entries(groupedByDay).forEach(([dayLabel, dayData]) => {
+            Object.entries(groupedByDay).forEach(([dayKey, dayData]) => {
                 const totalDayTime = dayData.totalTime;
+                const dayLabel = dayKey.split('|')[1] || dayKey;
                 console.log(`\n📅 ${dayLabel} ${chalk.yellow(`(${totalDayTime.toFixed(1)}ч)`)}`);
 
                 dayData.tasks.forEach(task => {
