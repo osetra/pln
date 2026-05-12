@@ -25,6 +25,7 @@ import editPriority from './editing/editPriority.js'
 import editCategories from './editing/editCategories.js'
 import editDate from './editing/editDate.js'
 import changeParent from './editing/changeParent.js'
+import changePredecessor from './editing/changePredecessor.js'
 
 // tasks
 import addTask from './tasks/addTask.js'
@@ -48,7 +49,7 @@ const handlers = [
     toggleShowOnlyActiveTasks, toggleSubtasks,
     openSearch,
     editDescription, toggleSessionTimer, editSummary, editSummaryInsert, editSummaryAppend,
-    editStatus, editPriority, editCategories, editDate, changeParent,
+    editStatus, editPriority, editCategories, editDate, changeParent, changePredecessor,
     toggleSelection, clearSelection,
     addTask, addSubtask, deleteTask,
     showHelp, showReport, toggleTimeline, timelineCursor, refresh, openSettings
