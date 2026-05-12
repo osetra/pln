@@ -6,6 +6,7 @@ import { cacheManager }   from '@pln/core/cache/cache-manager.js'
 import { consolePrinter } from '@pln/core/printer/console-printer.js'
 import analizeTasks from '@pln/core/services/analizeTasks.js'
 import { frontendFilter } from '@pln/core/utils/frontend-filter.js'
+import { sessionsService } from '@pln/core/services/sessions.js'
 
 export default class ListCommand extends Command {
 
@@ -44,6 +45,11 @@ export default class ListCommand extends Command {
         } else {
             // Фильтрация на бэкенде (-b)
             filteredTasksWithShortUid = await tasksService.list(filter)
+        }
+
+        // Пост-фильтр: только задачи с активной сессией (--with-active-sessions / -was)
+        if (this.commandParams?.filterParams?.withActiveSessions) {
+            filteredTasksWithShortUid = sessionsService.withActive(filteredTasksWithShortUid)
         }
 
         const tasksAnalized = filteredTasksWithShortUid

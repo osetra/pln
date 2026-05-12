@@ -16,6 +16,8 @@ export default class FilterParams extends BaseParams {
         parentsLevel:    'number',
         levelAll:       'boolean',
         parentsAll:     'boolean',
+
+        withActiveSessions: 'boolean',
     };
     /**
      * @param {Object} [flags={}] - Разобранный объект флагов.
@@ -42,5 +44,8 @@ export default class FilterParams extends BaseParams {
 
         /** @type {number|undefined} Уровень вложенности задач */
         this.parentsLevel = flags.parentsAll ? -1 : flags.parentsLevel
+
+        /** @type {true|undefined} Флаг: только задачи с активной (начатой) сессией */
+        this.withActiveSessions = flags.withActiveSessions
     }
 }

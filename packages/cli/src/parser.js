@@ -22,7 +22,10 @@ export const parser = {
 
         'ink': 'ink',
         'vue': 'vue',
-        'blessed': 'blessed'
+        'blessed': 'blessed',
+
+        'was': 'withActiveSessions',
+        'withactivesessions': 'withActiveSessions',
     },
 
     /**
