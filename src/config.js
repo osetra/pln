@@ -81,6 +81,7 @@ const defaultConfig = {
         dateDue: true,
         /** parent: false | 'uid' | 'summary' */
         parent: 'summary',
+        dependsOn: true,
     },
 
     /** Иконки статусов задачи: ключ — VTODO STATUS (или внутренние группы). */

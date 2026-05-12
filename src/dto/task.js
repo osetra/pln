@@ -24,6 +24,8 @@ export default class Task {
      * @param {Date}              [data.completed]
      *
      * @param {string}            [data.parent]
+     * @param {string[]}          [data.dependsOn] - uid задач, которых нужно дождаться (RELTYPE=DEPENDS-ON)
+     * @param {string[]}          [data.blocks]    - uid задач, которые блокирует эта (RELTYPE=BLOCKS)
      * @param {string}            [data.href]
      *
      * @param {CustomProperties}  [data.customProperties]
@@ -45,6 +47,8 @@ export default class Task {
         completed,
 
         parent,
+        dependsOn,
+        blocks,
         href,
 
         customProperties = {},
@@ -59,6 +63,8 @@ export default class Task {
         this.priority    = priority    || 0
 
         this.parent      = parent      || undefined
+        this.dependsOn   = Array.isArray(dependsOn) ? dependsOn : []
+        this.blocks      = Array.isArray(blocks)    ? blocks    : []
         this.href        = href        || undefined
 
         this.created     = created     || new Date()

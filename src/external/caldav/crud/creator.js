@@ -65,6 +65,8 @@ export default class Creator extends Requester {
         if (task.created) lines.push(`CREATED:${this.#formatDate(task.created)}`);
         if (task.priority) lines.push(`PRIORITY:${task.priority}`);
         if (task.parent) lines.push(`RELATED-TO:${task.parent}`);
+        for (const uid of (task.dependsOn || [])) lines.push(`RELATED-TO;RELTYPE=DEPENDS-ON:${uid}`);
+        for (const uid of (task.blocks    || [])) lines.push(`RELATED-TO;RELTYPE=BLOCKS:${uid}`);
 
         // Завершающие строки
         lines.push('END:VTODO');

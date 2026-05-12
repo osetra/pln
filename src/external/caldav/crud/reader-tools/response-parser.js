@@ -58,14 +58,7 @@ export default class ResponseParser {
         
         if (!vtodo) throw new Error('Invalid ICS format: VTODO not found')
 
-        let parentUid
-        if (vtodo['RELATED-TO']) {
-            if (vtodo['RELATED-TO'].value) {
-                parentUid = vtodo['RELATED-TO'].value
-            } else {
-                parentUid = vtodo['RELATED-TO']
-            }
-        }
+        const { parentUid, dependsOn, blocks } = this.#parseRelations(vtodo['RELATED-TO'])
 
         const {
             created,
@@ -107,12 +100,37 @@ export default class ResponseParser {
             completed,
 
             parent: parentUid,
+            dependsOn,
+            blocks,
             href,
 
             //customProperties: yamlProps
         })
 
         return task
+    }
+
+    /**
+     * Разбирает RELATED-TO по RELTYPE: PARENT/DEPENDS-ON/BLOCKS.
+     * RELTYPE отсутствует → PARENT (по RFC 5545).
+     * @param {*} related - значение vtodo['RELATED-TO']: строка, объект или массив
+     * @returns {{ parentUid: string|undefined, dependsOn: string[], blocks: string[] }}
+     */
+    #parseRelations(related) {
+        const out = { parentUid: undefined, dependsOn: [], blocks: [] }
+        if (!related) return out
+
+        const list = Array.isArray(related) ? related : [related]
+        for (const r of list) {
+            const value = typeof r === 'string' ? r : r?.value
+            if (!value) continue
+            const params = Array.isArray(r?.params) ? r.params : []
+            const reltype = (params.map(p => p?.RELTYPE).find(Boolean) || 'PARENT').toUpperCase()
+            if (reltype === 'DEPENDS-ON')   out.dependsOn.push(value)
+            else if (reltype === 'BLOCKS')  out.blocks.push(value)
+            else                            out.parentUid = value
+        }
+        return out
     }
 
     /**

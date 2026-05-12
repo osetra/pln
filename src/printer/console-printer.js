@@ -280,6 +280,7 @@ export const consolePrinter = {
         if (fields.hasDescription && task.customProperties?.cleanDescription) n += 2
         if (fields.timer && task.customProperties?.totalHours > 0) n += 8
         if (fields.activeSession && task.customProperties?.hasActiveSession) n += 2
+        if (fields.dependsOn && task.dependsOn?.length) n += 7 * task.dependsOn.length
         const dateKeys = ['dateCreated','dateDtstamp','dateStart','dateDue','dateModified','dateCompleted']
         for (const k of dateKeys) if (fields[k]) n += 8
         n += 12 // запас на префикс дерева
@@ -363,6 +364,12 @@ export const consolePrinter = {
             ? chalk.red('🔴')
             : ''
 
+        let dependsOnMark = ''
+        if (fields.dependsOn && task.dependsOn?.length) {
+            const marks = task.dependsOn.map(uid => '⊘' + uid.slice(-4))
+            dependsOnMark = chalk.red(marks.join(' '))
+        }
+
         const parent = renderParent(task, fields.parent)
 
         let customProperties = ''
@@ -393,6 +400,7 @@ export const consolePrinter = {
             hasDesc,
             timer,
             activeSession,
+            dependsOnMark,
             parent,
             customProperties,
             ...dateList.map(dt => chalk.gray(dt))
