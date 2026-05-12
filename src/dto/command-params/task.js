@@ -6,17 +6,18 @@ import DateParams from './date.js'
  */
 export default class TaskParams extends DateParams {
     static PROPERTY_TYPES = {
-        uid:         'string',
-        summary:     'string',
-        categories:  'array',
-        status:      'string',
-        description: 'string',
-        priority:    'number',
-        x:           'boolean',
-        o:           'boolean',
-        cancel:      'boolean',
-        parent:      'string',
-        href:        'string',
+        uid:           'string',
+        summary:       'string',
+        categories:    'array',
+        addCategories: 'array',
+        status:        'string',
+        description:   'string',
+        priority:      'number',
+        x:             'boolean',
+        o:             'boolean',
+        cancel:        'boolean',
+        parent:        'string',
+        href:          'string',
         ...DateParams.PROPERTY_TYPES,
     }
     /**
@@ -29,8 +30,11 @@ export default class TaskParams extends DateParams {
         /** @type {string|undefined} Краткое содержание задачи (SUMMARY) */
         this.summary     = flags.summary
         
-        /** @type {string[]|undefined} Категории задач (CATEGORIES) */
+        /** @type {string[]|undefined} Категории задач (CATEGORIES) — заменяет существующие */
         this.categories  = flags.categories
+
+        /** @type {string[]|undefined} Категории для дозаписи к существующим (edit) */
+        this.addCategories = flags.addCategories
         
         /** @type {string|undefined} Статус задачи (STATUS) */
         this.status      = flags.status

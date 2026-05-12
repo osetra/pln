@@ -26,6 +26,10 @@ export const parser = {
 
         'was': 'withActiveSessions',
         'withactivesessions': 'withActiveSessions',
+
+        'ac': 'addCategories',
+        'addcategory': 'addCategories',
+        'addcategories': 'addCategories',
     },
 
     /**
