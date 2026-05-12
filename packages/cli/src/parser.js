@@ -30,6 +30,10 @@ export const parser = {
         'ac': 'addCategories',
         'addcategory': 'addCategories',
         'addcategories': 'addCategories',
+
+        'pre': 'predecessors',
+        'predecessors': 'predecessors',
+        'after': 'predecessors',
     },
 
     /**

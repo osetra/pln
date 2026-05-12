@@ -64,6 +64,9 @@ export class Command {
         if (taskParams.parent) {
             taskProps.parent = taskParams.parent
         }
+        if (taskParams.predecessors) {
+            taskProps.dependsOn = taskParams.predecessors.map(uid => this.short2FullUid(String(uid)))
+        }
         if (taskParams.href) {
             taskProps.href = taskParams.href
         }
