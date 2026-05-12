@@ -149,6 +149,27 @@
       "additionalProperties": { "type": "string" },
       "description": "Иконки статусов задачи: ключ — VTODO STATUS или группа (NEEDS-ACTION, COMPLETED, CANCELLED, IN-PROGRESS, TIMER, SOMEDAY, LATER). Дефолты в src/config.js, переопределяются ключами здесь.",
       "examples": [{ "NEEDS-ACTION": "-", "COMPLETED": "+" }]
+    },
+
+    "defaultFilter": {
+      "type": "array",
+      "description": "Фильтр по умолчанию — применяется когда юзер не указал флагов (или явно через -o). Массив условий формата Condition (см. src/dto/filter.js).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field"],
+        "properties": {
+          "field":       { "type": "string", "description": "Имя поля задачи (status, categories, summary, parent, uid, ...)." },
+          "value":       { "description": "Значение для сравнения." },
+          "combineType": { "type": "string", "enum": ["add", "only", "del"], "default": "only", "description": "add — OR, only — AND, del — исключить." }
+        }
+      },
+      "examples": [
+        [
+          { "field": "status",     "value": "NEEDS-ACTION", "combineType": "only" },
+          { "field": "categories", "value": "trash",        "combineType": "del" }
+        ]
+      ]
     }
   }
 }

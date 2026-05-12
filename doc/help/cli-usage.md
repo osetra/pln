@@ -27,7 +27,7 @@
 | `--due`        | `-e` | date   | Дедлайн                |
 | `--start`      |      | date   | Дата начала            |
 | `--x`          |      | bool   | Пометить COMPLETED     |
-| `--o`          |      | bool   | Пометить NEEDS-ACTION  |
+| `--o`          |      | bool   | Только открытые (применяет `config.defaultFilter`) |
 | `--cancel`     |      | bool   | Пометить CANCELLED     |
 
 ## Флаги фильтрации (FilterParams)
@@ -69,10 +69,24 @@
 
 Порядок применения: add → only → del → иерархия (parents/children).
 
+## Дефолтный фильтр
+
+Когда юзер запускает `pln` без флагов (или с `-o`), применяется `config.defaultFilter` — массив условий формата `Condition` из `src/dto/filter.js`.
+
+```jsonc
+// config.json
+"defaultFilter": [
+  { "field": "status",     "value": "NEEDS-ACTION", "combineType": "only" },
+  { "field": "categories", "value": "trash",         "combineType": "del" }
+]
+```
+
+`combineType`: `add` — OR, `only` — AND, `del` — исключить.
+
 ## Примеры
 
 ```bash
-# Список задач (по умолчанию — только NEEDS-ACTION)
+# Список задач (по умолчанию — config.defaultFilter, обычно status:NEEDS-ACTION)
 pln
 
 # Поиск по названию

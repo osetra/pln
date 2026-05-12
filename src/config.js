@@ -51,6 +51,16 @@ const defaultConfig = {
     },
 
     /**
+     * Фильтр, применяемый к списку задач по умолчанию (когда юзер не указал
+     * флагов фильтрации — то же поведение, что и при -o). Массив условий
+     * формата Condition из src/dto/filter.js: { field, value, combineType }.
+     * combineType: 'add' | 'only' | 'del'.
+     */
+    defaultFilter: [
+        { field: 'status', value: 'NEEDS-ACTION', combineType: 'only' },
+    ],
+
+    /**
      * Кастомные визуальные статусы для тегов. Применяется только если
      * task.status === 'NEEDS-ACTION'. Каждая запись задаёт иконку и цвет
      * (chalk-имя или hex). При нескольких совпадениях побеждает последний
@@ -129,11 +139,13 @@ const fieldDefaults    = defaultConfig.showingTaskFields
 const iconDefaults     = defaultConfig.taskStatusIcons
 const sortDefaults     = defaultConfig.sort
 const tagStatusDefaults = defaultConfig.tagStatuses
+const defaultFilterDefaults = defaultConfig.defaultFilter
 Object.assign(defaultConfig, rawConfig)
 defaultConfig.showingTaskFields       = { ...fieldDefaults,    ...(rawConfig.showingTaskFields       || {}) }
 defaultConfig.taskStatusIcons         = { ...iconDefaults,     ...(rawConfig.taskStatusIcons         || {}) }
 defaultConfig.sort                    = { ...sortDefaults,     ...(rawConfig.sort                    || {}) }
 defaultConfig.tagStatuses             = { ...tagStatusDefaults, ...(rawConfig.tagStatuses           || {}) }
+defaultConfig.defaultFilter           = Array.isArray(rawConfig.defaultFilter) ? rawConfig.defaultFilter : defaultFilterDefaults
 
 if (isNode) {
     defaultConfig.configPath = configUrl.pathname

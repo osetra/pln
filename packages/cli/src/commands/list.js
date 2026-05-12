@@ -1,6 +1,7 @@
 import { Command }           from './command.js'
 import { Filter, Condition } from '@pln/core/dto/filter.js'
 
+import { config }         from '@pln/core/config.js'
 import { tasksService }   from '@pln/core/services/tasks.js'
 import { cacheManager }   from '@pln/core/cache/cache-manager.js'
 import { consolePrinter } from '@pln/core/printer/console-printer.js'
@@ -106,11 +107,7 @@ export default class ListCommand extends Command {
 
         const isNoFlags = Object.keys(filterParams).length === 0
         if (filterParams.o || isNoFlags) {
-            filter.addCondition(new Condition({
-                field: 'status',
-                value: 'NEEDS-ACTION',
-                combineType: 'only'
-            }))
+            this._applyDefaultFilter(filter)
         } else if (filterParams.status) {
             filter.addCondition(new Condition({
                 field: 'status',
@@ -193,6 +190,23 @@ export default class ListCommand extends Command {
             console.dir(filter, { depth: null, colors: true, showHidden: true, compact: false })
         }
         return filter
+    }
+
+    /**
+     * Применяет к фильтру условия из config.defaultFilter — массива
+     * объектов формата Condition: { field, value, combineType }.
+     * @param {Filter} filter - фильтр, к которому дописываются условия
+     */
+    _applyDefaultFilter(filter) {
+        const conditions = Array.isArray(config.defaultFilter) ? config.defaultFilter : []
+        for (const c of conditions) {
+            if (!c?.field) continue
+            filter.addCondition(new Condition({
+                field: c.field,
+                value: c.value,
+                combineType: c.combineType || 'only',
+            }))
+        }
     }
 
     #showAnalitics(tasks) {
