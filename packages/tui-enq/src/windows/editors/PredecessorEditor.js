@@ -57,6 +57,7 @@ export default class PredecessorEditor extends Window {
       pointer: '⏿ ',
       header: () => headerString(state.tasks, null),
       footer: () => footerString(state.currentTask, FOOTER_HEIGHT),
+      result(name) { return this.find(name)?.value },
     })
 
     this.prompt.clear = function() {
@@ -65,7 +66,7 @@ export default class PredecessorEditor extends Window {
     }
 
     this.prompt.run()
-      .then(chosen => this.onSelect(chosen?.uid))
+      .then(task => this.onSelect(task?.uid))
       .catch(() => this.close())
   }
 
