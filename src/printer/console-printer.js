@@ -21,6 +21,17 @@ const UID_MARK_RE = new RegExp(`${ZWSP}([^${ZWSP}]+)${ZWSP}`);
 const wrapUid = uid => `${ZWSP}${uid}${ZWSP}`;
 
 /**
+ * Компактная дата завершения: "DD.MM HH:MM".
+ * @param {string|Date} iso
+ * @returns {string}
+ */
+function formatCompletedShort(iso) {
+    const dt = new Date(iso);
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(dt.getDate())}.${pad(dt.getMonth() + 1)} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+}
+
+/**
  * Возвращает chalk-функцию по имени или hex.
  * Принимает '#RRGGBB' либо имя ('gray', 'red', ...). Дефолт — gray.
  * @param {string} [name]
@@ -283,6 +294,7 @@ export const consolePrinter = {
         if (fields.dependsOn && task.dependsOn?.length) n += 7 * task.dependsOn.length
         const dateKeys = ['dateCreated','dateDtstamp','dateStart','dateDue','dateModified','dateCompleted']
         for (const k of dateKeys) if (fields[k]) n += 8
+        if (task.status === 'COMPLETED' && task.completed && !fields.dateCompleted) n += 12
         n += 12 // запас на префикс дерева
         return n
     },
@@ -396,6 +408,10 @@ export const consolePrinter = {
             completed: fields.dateCompleted ? task.completed : null,
         })
 
+        const completedShort = task.status === 'COMPLETED' && task.completed && !fields.dateCompleted
+            ? chalk.gray(formatCompletedShort(task.completed))
+            : ''
+
         const line = [
             status,
             uid,
@@ -408,7 +424,8 @@ export const consolePrinter = {
             dependsOnMark,
             parent,
             customProperties,
-            ...dateList.map(dt => chalk.gray(dt))
+            ...dateList.map(dt => chalk.gray(dt)),
+            completedShort,
         ].filter(Boolean).join(' ')
         return task.customProperties?.isBlocked ? chalk.dim(line) : line
     },

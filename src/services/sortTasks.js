@@ -41,6 +41,13 @@ export default function sortTasks(tasks) {
     if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return 1
     if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return -1
 
+    // 1a. Внутри COMPLETED — свежезавершённые выше
+    if (a.status === 'COMPLETED' && b.status === 'COMPLETED') {
+      const aC = a.completed ? new Date(a.completed).getTime() : 0
+      const bC = b.completed ? new Date(b.completed).getTime() : 0
+      if (aC !== bC) return bC - aC
+    }
+
     // 2. Категориальный уровень
     const aLevel = getCatLevel(a)
     const bLevel = getCatLevel(b)
