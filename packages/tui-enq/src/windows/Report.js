@@ -317,9 +317,14 @@ export default class Sessions extends Window {
                     console.log(`    ${timeStr}${task.summary}`);
                 });
 
-                dayData.completedTasks?.forEach(task => {
-                    console.log(`    ${chalk.green('✓')} ${chalk.gray(task.summary)}`);
-                });
+                dayData.completedTasks
+                    ?.slice()
+                    .sort((a, b) => new Date(b.completed) - new Date(a.completed))
+                    .forEach(task => {
+                        const t = new Date(task.completed);
+                        const time = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+                        console.log(`    ${chalk.green('✓')} ${chalk.gray(time)} ${chalk.gray(task.summary)}`);
+                    });
             });
         }
 
