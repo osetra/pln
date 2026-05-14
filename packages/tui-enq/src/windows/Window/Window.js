@@ -1,5 +1,6 @@
 import { tasksService } from '@pln/core/services/tasks.js'
 import { state }        from '../../state.js'
+import { applyHiddenSubtasks } from '../../subtasks.js'
 
 import NavigationController from './NavigationController.js'
 
@@ -130,10 +131,13 @@ export default class Window extends NavigationController{
                 task[property] = newValue
             })
             
-            // Обновляем задачи в состоянии
-            state.tasks = state.tasks.map(t =>
+            // Обновляем задачи в состоянии. Берём _tasks (полный набор),
+            // а не state.tasks — getter может вернуть filteredTasks при свёрнутых
+            // подзадачах, и тогда скрытые задачи затираются в _tasks.
+            state.tasks = state._tasks.map(t =>
                 t.uid === task.uid ? task : t
             )
+            applyHiddenSubtasks()
             
             // Сохраняем в бэкенд
             tasksService.update(task, { uid: task.uid, ...updates })
