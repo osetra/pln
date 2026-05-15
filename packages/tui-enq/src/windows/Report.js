@@ -6,6 +6,8 @@ import { NumberEditor } from './common/number-editor.js'
 
 import { completedTasksService } from '@pln/core/services/completedTasks.js'
 
+const RATE_PER_HOUR = 500
+
 let viewMode = 'default'
 
 /**
@@ -308,7 +310,8 @@ export default class Sessions extends Window {
             Object.entries(groupedByDay).forEach(([dayKey, dayData]) => {
                 const totalDayTime = dayData.totalTime;
                 const dayLabel = dayKey.split('|')[1] || dayKey;
-                console.log(`\n📅 ${dayLabel} ${chalk.yellow(`(${totalDayTime.toFixed(1)}ч)`)}`);
+                const rub = Math.round(totalDayTime * RATE_PER_HOUR);
+                console.log(`\n📅 ${dayLabel} ${chalk.yellow(`(${totalDayTime.toFixed(1)}ч - ${rub} р)`)}`);
 
                 dayData.tasks.forEach(task => {
                     const timeStr = task.totalTime > 0
