@@ -10,6 +10,7 @@ export const parser = {
         'f': 'clientFilter', 'b': 'backendFilter',
         'sd': 'showDescription', 'showdescription': 'showDescription',
         'fu': 'fullUid', 'fulluid': 'fullUid',
+        'su': 'shortUid', 'shortuid': 'shortUid',
         'F': 'flowchart', 'flowchart': 'flowchart',
 
         'a': 'all', 't': 'summary', 'c': 'categories', 's': 'status',

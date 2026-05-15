@@ -20,15 +20,17 @@ export default class ListCommand extends Command {
         const verbose = this.commandParams?.controlParams?.verbose
         if (verbose) console.time('fullTime')
         cacheManager.clearCache()
+        const ctrl = this.commandParams?.controlParams || {}
+        const uidMode = ctrl.fullUid ? 'full' : ctrl.shortUid ? 'short' : false
         const options = {
-            isHideTasks: this.commandParams?.controlParams?.hide,
-            isRawOutput: this.commandParams?.controlParams?.raw,
+            isHideTasks: ctrl.hide,
+            isRawOutput: ctrl.raw,
             /* в случае наличия принтер просто отдаст задачи с полем с отформатированной строкой */
-            isThreeLines: this.commandParams?.controlParams?.three,
-            isClientFilter: this.commandParams?.controlParams?.clientFilter,
-            isBackendFilter: this.commandParams?.controlParams?.backendFilter,
-            showDescription: this.commandParams?.controlParams?.showDescription,
-            fullUid: this.commandParams?.controlParams?.fullUid,
+            isThreeLines: ctrl.three,
+            isClientFilter: ctrl.clientFilter,
+            isBackendFilter: ctrl.backendFilter,
+            showDescription: ctrl.showDescription,
+            uidMode,
         }
 
         const filter = this._buildFilter()

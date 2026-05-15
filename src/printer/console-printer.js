@@ -301,16 +301,19 @@ export const consolePrinter = {
 
     /**
      * Форматирует задачу для вывода. Состав строки управляется флагами
-     * `config.showingTaskFields` (мерж с FIELD_DEFAULTS); options.fullUid
-     * принудительно ставит uid='full' (CLI-флаг).
+     * `config.showingTaskFields` (мерж с FIELD_DEFAULTS); options.uidMode
+     * (false | 'short' | 'full') перебивает config — используется в CLI.
+     * options.fullUid оставлен для обратной совместимости.
      * @param {Task} task
      * @param {Object} [options]
+     * @param {false|'short'|'full'} [options.uidMode]
      * @param {boolean} [options.fullUid]
      * @returns {string}
      */
     formatTask(task, options = {}) {
         const fields = { ...configRef.value.showingTaskFields }
-        if (options.fullUid) fields.uid = 'full'
+        if (options.uidMode !== undefined) fields.uid = options.uidMode
+        else if (options.fullUid) fields.uid = 'full'
 
         const cols = process.stdout?.columns || 80
         const otherPartsReserve = this._estimateOtherParts(task, fields)
