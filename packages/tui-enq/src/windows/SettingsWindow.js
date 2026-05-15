@@ -21,6 +21,7 @@ import { state } from '../state.js'
  * @type {Array<{path: string, type: 'input'|'numeral'|'toggle'|'select'|'list'|'json', label: string, values?: Array<any>}>}
  */
 const SETTINGS = [
+    { path: 'showingTaskFields.uid',             type: 'select',  label: 'Uid: режим',    values: [false, 'short', 'full'] },
     { path: 'tagPrefix',                         type: 'input',   label: 'Тег: префикс' },
     { path: 'tagColor',                          type: 'input',   label: 'Тег: цвет' },
     { path: 'parentDisplayLen',                  type: 'numeral', label: 'Длина блока parent' },
@@ -28,7 +29,6 @@ const SETTINGS = [
     { path: 'sort.dropTags',                     type: 'list',    label: 'Sort: drop-теги (вниз)' },
     { path: 'tagStatuses',                       type: 'json',    label: 'Кастомные статусы для тегов' },
     { path: 'showingTaskFields.parent',          type: 'select',  label: 'Parent: режим', values: [false, 'uid', 'summary'] },
-    { path: 'showingTaskFields.uid',             type: 'select',  label: 'Uid: режим',    values: [false, 'short', 'full'] },
     { path: 'showingTaskFields.categories',      type: 'toggle',  label: 'Показывать теги' },
     { path: 'showingTaskFields.priority',        type: 'toggle',  label: 'Показывать приоритет' },
     { path: 'showingTaskFields.timer',           type: 'toggle',  label: 'Показывать таймер' },
