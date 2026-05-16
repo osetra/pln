@@ -11,6 +11,19 @@ import { frontendFilter } from '@pln/core/utils/frontend-filter.js'
 import { sessionsService } from '@pln/core/services/sessions.js'
 import { buildMermaid } from '@pln/core/services/taskFlowchart.js'
 
+/**
+ * Разбирает значение флага --sort вида "<dir>:<by>" → объект для sortTasks.
+ * Зачем: единая точка валидации CLI-аргумента сортировки.
+ * @param {string|undefined} raw
+ * @returns {{by:string, dir:'asc'|'desc'}|undefined}
+ */
+function parseSortFlag(raw) {
+    if (!raw) return undefined
+    const [dir, by] = raw.split(':')
+    if (!dir || !by) throw new Error(`--sort: ожидается формат "<dir>:<by>", получено "${raw}"`)
+    return { by, dir }
+}
+
 export default class ListCommand extends Command {
 
     /**
@@ -31,6 +44,7 @@ export default class ListCommand extends Command {
             isBackendFilter: ctrl.backendFilter,
             showDescription: ctrl.showDescription,
             uidMode,
+            sort: parseSortFlag(ctrl.sort),
         }
 
         const filter = this._buildFilter()

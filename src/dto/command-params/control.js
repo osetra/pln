@@ -18,6 +18,7 @@ export default class ControlParams extends BaseParams {
         ink: 'boolean',
         vue: 'boolean',
         blessed: 'boolean',
+        sort: 'string',
         //levelAll: 'boolean',
         //withParent: 'boolean',
     }
@@ -64,6 +65,9 @@ export default class ControlParams extends BaseParams {
 
         /** @type {true|undefined} Флаг: Запустить TUI на neo-blessed + @vue/reactivity (--blessed) */
         this.blessed = flags.blessed
+
+        /** @type {string|undefined} Сортировка вывода в формате "<dir>:<by>", например "asc:created" */
+        this.sort = flags.sort
 
         //this.levelAll = flags.levelAll
         //this.withParent = flags.withParent

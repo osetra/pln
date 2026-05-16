@@ -5,19 +5,34 @@ import { configRef } from './getConfigRef.js'
 /**
  * Стабильная сортировка задач для вывода в CLI/TUI/web.
  *
- * Порядок применения правил (каждое следующее — тайбрейкер):
+ * Дефолтный порядок (каждое следующее — тайбрейкер):
  *   1. Статус: CANCELLED → внизу, COMPLETED → ниже активных
  *   2. Категориальный уровень: liftTags → выше, dropTags → ниже (из конфига)
  *   3. Приоритет: 1 — высший, 0 — без приоритета, оба-без → пропустить
  *   4. Дедлайн (due): задачи с due выше задач без; раньше → выше
  *   5. Summary: localeCompare ru с numeric: true (понимает "1 ...", "10 ...")
  *
+ * При `opts.by='created'` правила 3–5 заменяются на сортировку по `created`
+ * (asc/desc), внутри COMPLETED тоже по `created` — единый ключ во всех группах.
+ * Статус и категориальный уровень остаются как «жёсткие» группировки.
+ *
  * Мутирует входной массив (как Array.prototype.sort) и возвращает его же.
  *
  * @param {Task[]} tasks
+ * @param {{by?: 'created', dir?: 'asc'|'desc'}} [opts]
  * @returns {Task[]}
  */
-export default function sortTasks(tasks) {
+export default function sortTasks(tasks, opts = {}) {
+  const { by, dir = 'asc' } = opts
+  if (by && by !== 'created') {
+    throw new Error(`sortTasks: неизвестный ключ сортировки '${by}' (поддерживается: created)`)
+  }
+  if (by && dir !== 'asc' && dir !== 'desc') {
+    throw new Error(`sortTasks: неизвестное направление '${dir}' (asc|desc)`)
+  }
+  const useCreated = by === 'created'
+  const dirMul = dir === 'desc' ? -1 : 1
+
   const liftTags = new Set(configRef.value.sort?.liftTags || [])
   const dropTags = new Set(configRef.value.sort?.dropTags || [])
 
@@ -41,8 +56,9 @@ export default function sortTasks(tasks) {
     if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') return 1
     if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') return -1
 
-    // 1a. Внутри COMPLETED — свежезавершённые выше
-    if (a.status === 'COMPLETED' && b.status === 'COMPLETED') {
+    // 1a. Внутри COMPLETED — свежезавершённые выше (только в дефолтном режиме;
+    //     при useCreated COMPLETED сортируется тем же ключом, что и активные).
+    if (!useCreated && a.status === 'COMPLETED' && b.status === 'COMPLETED') {
       const aC = a.completed ? new Date(a.completed).getTime() : 0
       const bC = b.completed ? new Date(b.completed).getTime() : 0
       if (aC !== bC) return bC - aC
@@ -52,6 +68,13 @@ export default function sortTasks(tasks) {
     const aLevel = getCatLevel(a)
     const bLevel = getCatLevel(b)
     if (aLevel !== bLevel) return bLevel - aLevel
+
+    if (useCreated) {
+      const aC = a.created ? new Date(a.created).getTime() : 0
+      const bC = b.created ? new Date(b.created).getTime() : 0
+      if (aC !== bC) return (aC - bC) * dirMul
+      return collator.compare(a.summary || '', b.summary || '')
+    }
 
     // 3. Приоритет (внутри одного уровня)
     const aPrio = a.priority ?? 0

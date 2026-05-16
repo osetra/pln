@@ -80,6 +80,7 @@ export const consolePrinter = {
      * @param {Task[]} tasks
      * @param {Object} [options] - Опциональный конфиг
      * @param {boolean} [options.print=true] - Выводить ли в консоль (по умолчанию true)
+     * @param {{by?:'created', dir?:'asc'|'desc'}} [options.sort] - Опции сортировки для sortTasks
      * @returns {string} - строка с задачами
      */
     print(tasks, options = {}) {
@@ -88,7 +89,7 @@ export const consolePrinter = {
             fullUid: false,
         }, ...options}
 
-        const sortedTasks = sortTasks(tasks)
+        const sortedTasks = sortTasks(tasks, options.sort)
         const [ tasksView, tasksWithTreeLine ] = this.getTasksTree(sortedTasks, options)
 
         if (!options.print) return tasksWithTreeLine
