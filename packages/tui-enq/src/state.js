@@ -2,6 +2,8 @@ import { consolePrinter } from "@pln/core/printer/console-printer.js"
 import { analizator } from "@pln/core/utils/analizator.js"
 import { frontendFilter } from "@pln/core/utils/frontend-filter.js"
 import { setCachedTasks } from "@pln/core/cache/query-client.js"
+import { config } from "@pln/core/config.js"
+import hideNotStartedTasks from "@pln/core/services/hideNotStartedTasks.js"
 
 /** @typedef {import("../../dto/task.js").default} Task */
 /** @typedef {import("../../dto/filter.js").Filter} Filter */
@@ -48,7 +50,8 @@ export const state = {
     activeWindows: [],
 
     set tasks(rawTasks) {
-        const analizedTasks = analizator.analize(rawTasks)
+        const visible = config.hideNotStarted ? hideNotStartedTasks(rawTasks) : rawTasks
+        const analizedTasks = analizator.analize(visible)
 
         const tasksWithThreeLines = consolePrinter.print(analizedTasks, {print: false})
         this._tasks = tasksWithThreeLines
@@ -56,12 +59,13 @@ export const state = {
         setCachedTasks(this._tasks)
         this._recalculateFilteredTasks()
     },
-    get tasks() { 
-        return this.filteredTasks.length > 0 ? this.filteredTasks : this._tasks 
+    get tasks() {
+        return this.filteredTasks.length > 0 ? this.filteredTasks : this._tasks
     },
 
     set filteredTasks(rawTasks) {
-        const analizedTasks = analizator.analize(rawTasks)
+        const visible = config.hideNotStarted ? hideNotStartedTasks(rawTasks) : rawTasks
+        const analizedTasks = analizator.analize(visible)
         const tasksWithThreeLines = consolePrinter.print(analizedTasks, {print: false})
         this._filteredTasks = tasksWithThreeLines
     },

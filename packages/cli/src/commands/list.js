@@ -10,6 +10,7 @@ import analizeTasks from '@pln/core/services/analizeTasks.js'
 import { frontendFilter } from '@pln/core/utils/frontend-filter.js'
 import { sessionsService } from '@pln/core/services/sessions.js'
 import { buildMermaid } from '@pln/core/services/taskFlowchart.js'
+import hideNotStartedTasks from '@pln/core/services/hideNotStartedTasks.js'
 
 /**
  * Разбирает значение флага --sort вида "<dir>:<by>" → объект для sortTasks.
@@ -69,6 +70,11 @@ export default class ListCommand extends Command {
         // Пост-фильтр: только задачи с активной сессией (--with-active-sessions / -was)
         if (this.commandParams?.filterParams?.withActiveSessions) {
             filteredTasksWithShortUid = sessionsService.withActive(filteredTasksWithShortUid)
+        }
+
+        // Пост-фильтр: скрыть задачи с будущим DTSTART (config.hideNotStarted)
+        if (config.hideNotStarted) {
+            filteredTasksWithShortUid = hideNotStartedTasks(filteredTasksWithShortUid)
         }
 
         const tasksAnalized = filteredTasksWithShortUid
