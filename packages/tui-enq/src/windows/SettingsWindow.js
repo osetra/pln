@@ -34,6 +34,7 @@ const SETTINGS = [
     { path: 'showingTaskFields.timer',           type: 'toggle',  label: 'Показывать таймер' },
     { path: 'showingTaskFields.hasDescription',  type: 'toggle',  label: 'Иконка описания' },
     { path: 'showingTaskFields.activeSession',   type: 'toggle',  label: 'Активная сессия' },
+    { path: 'showingTaskFields.dateCreated',     type: 'toggle',  label: 'Дата created' },
     { path: 'showingTaskFields.dateDue',         type: 'toggle',  label: 'Дата deadline' },
     { path: 'showingTaskFields.dateStart',       type: 'toggle',  label: 'Дата start' },
     { path: 'showingTaskFields.dateCompleted',   type: 'toggle',  label: 'Дата completed' },

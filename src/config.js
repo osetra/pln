@@ -81,6 +81,7 @@ const defaultConfig = {
         summary: true,
         status: true,
         uid: false,
+        dateCreated: false,
         dateDue: true,
         /** parent: false | 'uid' | 'summary' */
         parent: 'summary',
