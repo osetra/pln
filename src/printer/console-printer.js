@@ -4,6 +4,7 @@ import treeify from 'treeify';
 import { configRef } from '../services/getConfigRef.js';
 import { cacheManager } from '../cache/cache-manager.js';
 import sortTasks from '../services/sortTasks.js';
+import findNextTask from '../services/findNextTask.js';
 
 /** @typedef {import("../dto/task").default} Task */
 /** @typedef {import("../dto/task").TaskWithTreeLine} TaskWithTreeLine */
@@ -90,6 +91,8 @@ export const consolePrinter = {
         }, ...options}
 
         const sortedTasks = sortTasks(tasks, options.sort)
+        const next = findNextTask(sortedTasks)
+        options.topUid = next?.uid
         const [ tasksView, tasksWithTreeLine ] = this.getTasksTree(sortedTasks, options)
 
         if (!options.print) return tasksWithTreeLine
@@ -431,6 +434,7 @@ export const consolePrinter = {
             ...dateList.map(dt => chalk.gray(dt)),
             completedShort,
         ].filter(Boolean).join(' ')
+        if (options.topUid === task.uid) return chalk.bold.yellow(line)
         return task.customProperties?.isBlocked ? chalk.dim(line) : line
     },
 
