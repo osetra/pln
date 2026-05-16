@@ -69,6 +69,11 @@ export default function sortTasks(tasks, opts = {}) {
     const bLevel = getCatLevel(b)
     if (aLevel !== bLevel) return bLevel - aLevel
 
+    // 2a. Заблокированные (ждут предшественника) — вниз внутри уровня
+    const aBlocked = !!a.customProperties?.isBlocked
+    const bBlocked = !!b.customProperties?.isBlocked
+    if (aBlocked !== bBlocked) return aBlocked ? 1 : -1
+
     if (useCreated) {
       const aC = a.created ? new Date(a.created).getTime() : 0
       const bC = b.created ? new Date(b.created).getTime() : 0
