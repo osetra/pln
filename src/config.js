@@ -44,10 +44,17 @@ const defaultConfig = {
     /** Длина блока parent при выводе (для 'summary' и 'uid'). */
     parentDisplayLen: 8,
 
-    /** Сортировка задач: какие теги поднимают (вверх) / опускают (вниз). */
+    /**
+     * Сортировка задач:
+     *   liftTags/dropTags — теги, поднимающие/опускающие задачи.
+     *   by — ключ для override дефолтной цепочки (null = дефолт, 'created').
+     *   dir — направление при заданном by ('asc' | 'desc').
+     */
     sort: {
         liftTags: ['next', 'scheduled'],
         dropTags: ['trash', 'someday', 'cancel', 'stop'],
+        by: null,
+        dir: 'asc',
     },
 
     /** Скрывать задачи с DTSTART в будущем («не начатые»). */

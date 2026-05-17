@@ -3,6 +3,19 @@ import { configRef } from './getConfigRef.js'
 /** @typedef {import('../dto/task.js').default} Task */
 
 /**
+ * Разбирает значение CLI-флага --sort вида "<dir>:<by>" → {by, dir}.
+ * Зачем: единая точка валидации, переиспользуется в list.js и tui.js.
+ * @param {string|undefined} raw
+ * @returns {{by:string, dir:'asc'|'desc'}|undefined}
+ */
+export function parseSortFlag(raw) {
+  if (!raw) return undefined
+  const [dir, by] = raw.split(':')
+  if (!dir || !by) throw new Error(`--sort: ожидается формат "<dir>:<by>", получено "${raw}"`)
+  return { by, dir }
+}
+
+/**
  * Стабильная сортировка задач для вывода в CLI/TUI/web.
  *
  * Дефолтный порядок (каждое следующее — тайбрейкер):

@@ -1,5 +1,6 @@
 import ListCommand from './list.js'
 import { loadTasks } from '@pln/core/cache/query-client.js'
+import { parseSortFlag } from '@pln/core/services/sortTasks.js'
 
 const SPIN_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
 
@@ -93,7 +94,7 @@ export default class TuiCommand extends ListCommand {
                 import('@pln/tui-enq/src/state.js'),
             ])
             state.loadFilter = filter
-            tui.run(tasks)
+            tui.run(tasks, { sortOpts: parseSortFlag(this.commandParams?.controlParams?.sort) })
         } catch (err) {
             console.error('❌ @pln/tui-enq не установлен. pnpm install (или npm i enquirer)')
         }

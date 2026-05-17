@@ -27,6 +27,8 @@ const SETTINGS = [
     { path: 'parentDisplayLen',                  type: 'numeral', label: 'Длина блока parent' },
     { path: 'sort.liftTags',                     type: 'list',    label: 'Sort: lift-теги (вверх)' },
     { path: 'sort.dropTags',                     type: 'list',    label: 'Sort: drop-теги (вниз)' },
+    { path: 'sort.by',                           type: 'select',  label: 'Sort: ключ',           values: [null, 'created'] },
+    { path: 'sort.dir',                          type: 'select',  label: 'Sort: направление',    values: ['asc', 'desc'] },
     { path: 'tagStatuses',                       type: 'json',    label: 'Кастомные статусы для тегов' },
     { path: 'showingTaskFields.parent',          type: 'select',  label: 'Parent: режим', values: [false, 'uid', 'summary'] },
     { path: 'showingTaskFields.categories',      type: 'toggle',  label: 'Показывать теги' },

@@ -22,9 +22,10 @@ function enterAltScreen() {
 }
 
 export const tui = {
-  run(initTasks) {
+  run(initTasks, { sortOpts } = {}) {
     if (initTasks.length === 0) console.log('Нет задач')
     enterAltScreen()
+    if (sortOpts) state.sortOpts = sortOpts
     state.tasks = initTasks
 
     if (config.tuiCollapseSubtasks) collapseAllSubtasks()
