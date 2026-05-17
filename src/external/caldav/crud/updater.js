@@ -3,6 +3,19 @@ import Requester from './requester.js';
 
 /** @typedef {import("../../dto/task").default} Task */
 
+/**
+ * Собирает все RELATED-TO строки задачи (parent + dependsOn + blocks)
+ * @param {Task} task
+ * @returns {string}
+ */
+function relatedToLines(task) {
+    const lines = []
+    if (task.parent) lines.push(`RELATED-TO:${task.parent}`)
+    for (const uid of (task.dependsOn || [])) lines.push(`RELATED-TO;RELTYPE=DEPENDS-ON:${uid}`)
+    for (const uid of (task.blocks    || [])) lines.push(`RELATED-TO;RELTYPE=BLOCKS:${uid}`)
+    return lines.length ? lines.join('\n') + '\n' : ''
+}
+
 export default class Updater extends Requester {
     /**
      * Обновляет задачу через PUT-запрос
@@ -66,7 +79,8 @@ class IcalBuilder {
         const dtstampStr = task.dtstamp ? `DTSTAMP:${this.#formatDate(task.dtstamp)}\n` : '';
         const startStr = task.start ? `DTSTART:${this.#formatDate(task.start)}\n` : '';
         const modifiedStr = task.modified ? `LAST-MODIFIED:${this.#formatDate(task.modified)}\n` : '';
-        
+        const relatedStr  = relatedToLines(task);
+
         return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//pln//CalDAV Client//EN
@@ -83,7 +97,7 @@ ${createdStr}\
 ${dtstampStr}\
 ${startStr}\
 ${modifiedStr}\
-${task.parent ? `RELATED-TO:${task.parent}\n` : ''}\
+${relatedStr}\
 END:VTODO
 END:VCALENDAR`;
     }
@@ -112,7 +126,7 @@ ${categoriesStr ? `CATEGORIES:${categoriesStr}\n` : ''}\
 PRIORITY:${task.priority}
 ${dueStr}\
 ${completedStr}\
-${task.parent ? `RELATED-TO:${task.parent}\n` : ''}\
+${relatedToLines(task)}\
 END:VTODO
 END:VCALENDAR`;
     }

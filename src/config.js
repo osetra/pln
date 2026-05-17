@@ -44,11 +44,31 @@ const defaultConfig = {
     /** Длина блока parent при выводе (для 'summary' и 'uid'). */
     parentDisplayLen: 8,
 
-    /** Сортировка задач: какие теги поднимают (вверх) / опускают (вниз). */
+    /**
+     * Сортировка задач:
+     *   liftTags/dropTags — теги, поднимающие/опускающие задачи.
+     *   by — ключ для override дефолтной цепочки (null = дефолт, 'created').
+     *   dir — направление при заданном by ('asc' | 'desc').
+     */
     sort: {
         liftTags: ['next', 'scheduled'],
         dropTags: ['trash', 'someday', 'cancel', 'stop'],
+        by: null,
+        dir: 'asc',
     },
+
+    /** Скрывать задачи с DTSTART в будущем («не начатые»). */
+    hideNotStarted: false,
+
+    /**
+     * Фильтр, применяемый к списку задач по умолчанию (когда юзер не указал
+     * флагов фильтрации — то же поведение, что и при -o). Массив условий
+     * формата Condition из src/dto/filter.js: { field, value, combineType }.
+     * combineType: 'add' | 'only' | 'del'.
+     */
+    defaultFilter: [
+        { field: 'status', value: 'NEEDS-ACTION', combineType: 'only' },
+    ],
 
     /**
      * Кастомные визуальные статусы для тегов. Применяется только если
@@ -68,9 +88,11 @@ const defaultConfig = {
         summary: true,
         status: true,
         uid: false,
+        dateCreated: false,
         dateDue: true,
         /** parent: false | 'uid' | 'summary' */
         parent: 'summary',
+        dependsOn: true,
     },
 
     /** Иконки статусов задачи: ключ — VTODO STATUS (или внутренние группы). */
@@ -129,11 +151,13 @@ const fieldDefaults    = defaultConfig.showingTaskFields
 const iconDefaults     = defaultConfig.taskStatusIcons
 const sortDefaults     = defaultConfig.sort
 const tagStatusDefaults = defaultConfig.tagStatuses
+const defaultFilterDefaults = defaultConfig.defaultFilter
 Object.assign(defaultConfig, rawConfig)
 defaultConfig.showingTaskFields       = { ...fieldDefaults,    ...(rawConfig.showingTaskFields       || {}) }
 defaultConfig.taskStatusIcons         = { ...iconDefaults,     ...(rawConfig.taskStatusIcons         || {}) }
 defaultConfig.sort                    = { ...sortDefaults,     ...(rawConfig.sort                    || {}) }
 defaultConfig.tagStatuses             = { ...tagStatusDefaults, ...(rawConfig.tagStatuses           || {}) }
+defaultConfig.defaultFilter           = Array.isArray(rawConfig.defaultFilter) ? rawConfig.defaultFilter : defaultFilterDefaults
 
 if (isNode) {
     defaultConfig.configPath = configUrl.pathname

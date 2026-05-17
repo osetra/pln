@@ -4,6 +4,10 @@ import { state } from '../state.js'
 import chalk from 'chalk'
 import { NumberEditor } from './common/number-editor.js'
 
+import { completedTasksService } from '@pln/core/services/completedTasks.js'
+
+const RATE_PER_HOUR = 500
+
 let viewMode = 'default'
 
 /**
@@ -188,32 +192,22 @@ export default class Sessions extends Window {
      */
     #groupTasksByDay(tasks) {
         const grouped = {};
-        
+
         tasks.forEach(task => {
             task.sessions.forEach(session => {
                 const sessionDate = this.#getSessionDate(session);
-                const dateStr = sessionDate.toISOString().slice(0, 10);
-                const dayKey = dateStr + '|' + sessionDate.toLocaleDateString('ru-RU', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short'
-                });
-                
+                const dayKey = this.#dayKeyFor(sessionDate);
+                const dateStr = dayKey.split('|')[0];
+
                 if (!grouped[dayKey]) {
-                    grouped[dayKey] = {
-                        dateStr,
-                        tasks: [],
-                        totalTime: 0
-                    };
+                    grouped[dayKey] = { dateStr, tasks: [], totalTime: 0, completedTasks: [] };
                 }
-                
-                // Добавляем задачу, если её ещё нет в этом дне
+
                 const existingTask = grouped[dayKey].tasks.find(t => t.uid === task.uid);
                 if (!existingTask) {
                     grouped[dayKey].tasks.push(task);
                 }
-                
-                // Добавляем время сессии к общему времени дня
+
                 if (session.length === 2) {
                     const start = new Date(session[0]);
                     const end = new Date(session[1]);
@@ -222,15 +216,54 @@ export default class Sessions extends Window {
                 }
             });
         });
-        
+
+        // Добавляем задачи, завершённые в окне daysBack, по дате завершения
+        const completed = completedTasksService.completedInDays(state.tasks, this.daysBackCount);
+        completed.forEach(task => {
+            const completedDate = new Date(task.completed);
+            const dayKey = this.#dayKeyFor(completedDate);
+            const dateStr = dayKey.split('|')[0];
+
+            if (!grouped[dayKey]) {
+                grouped[dayKey] = { dateStr, tasks: [], totalTime: 0, completedTasks: [] };
+            }
+            if (!grouped[dayKey].completedTasks) grouped[dayKey].completedTasks = [];
+
+            // не дублируем — если задача уже в session-блоке этого дня, пропускаем
+            const alreadyInSessions = grouped[dayKey].tasks.find(t => t.uid === task.uid);
+            const alreadyInCompleted = grouped[dayKey].completedTasks.find(t => t.uid === task.uid);
+            if (!alreadyInSessions && !alreadyInCompleted) {
+                grouped[dayKey].completedTasks.push(task);
+            }
+        });
+
         // Сортируем дни по дате (новые выше)
         const sortedEntries = Object.entries(grouped).sort(([dayKeyA], [dayKeyB]) => {
             const dateA = dayKeyA.split('|')[0];
             const dateB = dayKeyB.split('|')[0];
             return dateB.localeCompare(dateA);
         });
-        
+
         return Object.fromEntries(sortedEntries);
+    }
+
+    /**
+     * Формирует ключ дня "YYYY-MM-DD|пн, 12 мая" для группировки.
+     * @param {Date} date
+     * @returns {string}
+     */
+    #dayKeyFor(date) {
+        // локальная YYYY-MM-DD, чтобы группировка совпадала с label
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${d}`;
+        const label = date.toLocaleDateString('ru-RU', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short'
+        });
+        return dateStr + '|' + label;
     }
 
     /**
@@ -272,18 +305,29 @@ export default class Sessions extends Window {
 
     renderDefault(groupedByDay, line) {
         if (Object.keys(groupedByDay).length === 0) {
-            console.log(chalk.gray('🤷 Нет задач с сессиями за указанный период'));
+            console.log(chalk.gray('🤷 Нет задач за указанный период'));
         } else {
-            Object.entries(groupedByDay).forEach(([dayLabel, dayData]) => {
+            Object.entries(groupedByDay).forEach(([dayKey, dayData]) => {
                 const totalDayTime = dayData.totalTime;
-                console.log(`\n📅 ${dayLabel} ${chalk.yellow(`(${totalDayTime.toFixed(1)}ч)`)}`);
-                
+                const dayLabel = dayKey.split('|')[1] || dayKey;
+                const rub = Math.round(totalDayTime * RATE_PER_HOUR);
+                console.log(`\n📅 ${dayLabel} ${chalk.yellow(`(${totalDayTime.toFixed(1)}ч - ${rub} р)`)}`);
+
                 dayData.tasks.forEach(task => {
-                    const timeStr = task.totalTime > 0 
-                        ? chalk.yellow(`(${task.totalTime.toFixed(1)}ч) `) 
+                    const timeStr = task.totalTime > 0
+                        ? chalk.yellow(`(${task.totalTime.toFixed(1)}ч) `)
                         : ' ';
                     console.log(`    ${timeStr}${task.summary}`);
                 });
+
+                dayData.completedTasks
+                    ?.slice()
+                    .sort((a, b) => new Date(b.completed) - new Date(a.completed))
+                    .forEach(task => {
+                        const t = new Date(task.completed);
+                        const time = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+                        console.log(`    ${chalk.green('✓')} ${chalk.gray(time)} ${chalk.gray(task.summary)}`);
+                    });
             });
         }
 

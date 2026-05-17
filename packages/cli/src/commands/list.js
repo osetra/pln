@@ -1,11 +1,17 @@
 import { Command }           from './command.js'
+import { renderMermaidASCII } from 'beautiful-mermaid'
 import { Filter, Condition } from '@pln/core/dto/filter.js'
 
+import { config }         from '@pln/core/config.js'
 import { tasksService }   from '@pln/core/services/tasks.js'
 import { cacheManager }   from '@pln/core/cache/cache-manager.js'
 import { consolePrinter } from '@pln/core/printer/console-printer.js'
 import analizeTasks from '@pln/core/services/analizeTasks.js'
 import { frontendFilter } from '@pln/core/utils/frontend-filter.js'
+import { sessionsService } from '@pln/core/services/sessions.js'
+import { buildMermaid } from '@pln/core/services/taskFlowchart.js'
+import hideNotStartedTasks from '@pln/core/services/hideNotStartedTasks.js'
+import { parseSortFlag } from '@pln/core/services/sortTasks.js'
 
 export default class ListCommand extends Command {
 
@@ -16,15 +22,19 @@ export default class ListCommand extends Command {
         const verbose = this.commandParams?.controlParams?.verbose
         if (verbose) console.time('fullTime')
         cacheManager.clearCache()
+        const ctrl = this.commandParams?.controlParams || {}
+        const uidMode = ctrl.fullUid ? 'full' : ctrl.shortUid ? 'short' : false
         const options = {
-            isHideTasks: this.commandParams?.controlParams?.hide,
-            isRawOutput: this.commandParams?.controlParams?.raw,
+            isHideTasks: ctrl.hide,
+            isRawOutput: ctrl.raw,
             /* в случае наличия принтер просто отдаст задачи с полем с отформатированной строкой */
-            isThreeLines: this.commandParams?.controlParams?.three,
-            isClientFilter: this.commandParams?.controlParams?.clientFilter,
-            isBackendFilter: this.commandParams?.controlParams?.backendFilter,
-            showDescription: this.commandParams?.controlParams?.showDescription,
-            fullUid: this.commandParams?.controlParams?.fullUid,
+            isThreeLines: ctrl.three,
+            isClientFilter: ctrl.clientFilter,
+            isBackendFilter: ctrl.backendFilter,
+            showDescription: ctrl.showDescription,
+            uidMode,
+            sort: parseSortFlag(ctrl.sort)
+                ?? (config.sort?.by ? { by: config.sort.by, dir: config.sort.dir || 'asc' } : undefined),
         }
 
         const filter = this._buildFilter()
@@ -46,6 +56,16 @@ export default class ListCommand extends Command {
             filteredTasksWithShortUid = await tasksService.list(filter)
         }
 
+        // Пост-фильтр: только задачи с активной сессией (--with-active-sessions / -was)
+        if (this.commandParams?.filterParams?.withActiveSessions) {
+            filteredTasksWithShortUid = sessionsService.withActive(filteredTasksWithShortUid)
+        }
+
+        // Пост-фильтр: скрыть задачи с будущим DTSTART (config.hideNotStarted)
+        if (config.hideNotStarted) {
+            filteredTasksWithShortUid = hideNotStartedTasks(filteredTasksWithShortUid)
+        }
+
         const tasksAnalized = filteredTasksWithShortUid
 
         if (options.isHideTasks) return tasksAnalized
@@ -57,6 +77,17 @@ export default class ListCommand extends Command {
         if (options.isThreeLines) {
             const tasksWithTreeLine = consolePrinter.print(filteredTasksWithShortUid, { print: false })
             return tasksWithTreeLine
+        }
+
+        if (this.commandParams?.controlParams?.flowchart) {
+            const code = buildMermaid(filteredTasksWithShortUid, { onlyConnected: true })
+            if (!code.includes('-->')) {
+                console.log('⊘ В выборке нет связей DEPENDS-ON')
+            } else {
+                console.log(renderMermaidASCII(code, { colorMode: 'none', boxBorderPadding: 0 }))
+            }
+            if (verbose) console.timeEnd('fullTime')
+            return tasksAnalized
         }
 
         consolePrinter.print(tasksAnalized, options)
@@ -100,11 +131,7 @@ export default class ListCommand extends Command {
 
         const isNoFlags = Object.keys(filterParams).length === 0
         if (filterParams.o || isNoFlags) {
-            filter.addCondition(new Condition({
-                field: 'status',
-                value: 'NEEDS-ACTION',
-                combineType: 'only'
-            }))
+            this._applyDefaultFilter(filter)
         } else if (filterParams.status) {
             filter.addCondition(new Condition({
                 field: 'status',
@@ -187,6 +214,23 @@ export default class ListCommand extends Command {
             console.dir(filter, { depth: null, colors: true, showHidden: true, compact: false })
         }
         return filter
+    }
+
+    /**
+     * Применяет к фильтру условия из config.defaultFilter — массива
+     * объектов формата Condition: { field, value, combineType }.
+     * @param {Filter} filter - фильтр, к которому дописываются условия
+     */
+    _applyDefaultFilter(filter) {
+        const conditions = Array.isArray(config.defaultFilter) ? config.defaultFilter : []
+        for (const c of conditions) {
+            if (!c?.field) continue
+            filter.addCondition(new Condition({
+                field: c.field,
+                value: c.value,
+                combineType: c.combineType || 'only',
+            }))
+        }
     }
 
     #showAnalitics(tasks) {

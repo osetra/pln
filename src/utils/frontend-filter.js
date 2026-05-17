@@ -63,7 +63,10 @@ export const frontendFilter = {
     _addChildrenByLevel(filteredTasks, allTasks, childrensLevel, filter) {
         const result = [...filteredTasks]
         const delConditions = filter.conditions.filter(c => c.combineType === 'del')
-        const onlyConditions = filter.conditions.filter(c => c.combineType === 'only')
+        // uid — корневое условие (выбор стартовой задачи), на детей не накладываем,
+        // иначе ребёнок с другим uid всегда отсеивается и поддерево пустеет.
+        const onlyConditions = filter.conditions
+            .filter(c => c.combineType === 'only' && c.field !== 'uid')
 
         const addChildren = (parent, currentLevel) => {
             if (childrensLevel !== -1 && currentLevel > childrensLevel) return

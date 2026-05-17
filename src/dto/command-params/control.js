@@ -13,9 +13,12 @@ export default class ControlParams extends BaseParams {
         backendFilter: 'boolean',
         showDescription: 'boolean',
         fullUid: 'boolean',
+        shortUid: 'boolean',
+        flowchart: 'boolean',
         ink: 'boolean',
         vue: 'boolean',
         blessed: 'boolean',
+        sort: 'string',
         //levelAll: 'boolean',
         //withParent: 'boolean',
     }
@@ -45,8 +48,14 @@ export default class ControlParams extends BaseParams {
         /** @type {true|undefined} Флаг: Показывать описание задач под каждой строкой */
         this.showDescription = flags.showDescription
 
-        /** @type {true|undefined} Флаг: Печатать полные uid вместо shortUid */
+        /** @type {true|undefined} Флаг: Печатать полные uid */
         this.fullUid = flags.fullUid
+
+        /** @type {true|undefined} Флаг: Печатать shortUid (по дефолту uid не печатается) */
+        this.shortUid = flags.shortUid
+
+        /** @type {true|undefined} Флаг: Вывести ASCII-flowchart по DEPENDS-ON для текущего scope */
+        this.flowchart = flags.flowchart
 
         /** @type {true|undefined} Флаг: Запустить экспериментальный TUI на ink (--ink) */
         this.ink = flags.ink
@@ -56,6 +65,9 @@ export default class ControlParams extends BaseParams {
 
         /** @type {true|undefined} Флаг: Запустить TUI на neo-blessed + @vue/reactivity (--blessed) */
         this.blessed = flags.blessed
+
+        /** @type {string|undefined} Сортировка вывода в формате "<dir>:<by>", например "asc:created" */
+        this.sort = flags.sort
 
         //this.levelAll = flags.levelAll
         //this.withParent = flags.withParent

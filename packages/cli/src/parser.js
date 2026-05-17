@@ -10,6 +10,8 @@ export const parser = {
         'f': 'clientFilter', 'b': 'backendFilter',
         'sd': 'showDescription', 'showdescription': 'showDescription',
         'fu': 'fullUid', 'fulluid': 'fullUid',
+        'su': 'shortUid', 'shortuid': 'shortUid',
+        'F': 'flowchart', 'flowchart': 'flowchart',
 
         'a': 'all', 't': 'summary', 'c': 'categories', 's': 'status',
         'd': 'description', 'e': 'due',
@@ -22,7 +24,24 @@ export const parser = {
 
         'ink': 'ink',
         'vue': 'vue',
-        'blessed': 'blessed'
+        'blessed': 'blessed',
+
+        'was': 'withActiveSessions',
+        'withactivesessions': 'withActiveSessions',
+
+        'ac': 'addCategories',
+        'addcategory': 'addCategories',
+        'addcategories': 'addCategories',
+
+        'pre': 'predecessors',
+        'predecessors': 'predecessors',
+        'after': 'predecessors',
+
+        'ap': 'addPredecessors',
+        'addpre': 'addPredecessors',
+        'addpredecessor': 'addPredecessors',
+        'addpredecessors': 'addPredecessors',
+        'addafter': 'addPredecessors',
     },
 
     /**

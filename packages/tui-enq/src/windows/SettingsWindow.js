@@ -21,19 +21,22 @@ import { state } from '../state.js'
  * @type {Array<{path: string, type: 'input'|'numeral'|'toggle'|'select'|'list'|'json', label: string, values?: Array<any>}>}
  */
 const SETTINGS = [
+    { path: 'showingTaskFields.uid',             type: 'select',  label: 'Uid: режим',    values: [false, 'short', 'full'] },
     { path: 'tagPrefix',                         type: 'input',   label: 'Тег: префикс' },
     { path: 'tagColor',                          type: 'input',   label: 'Тег: цвет' },
     { path: 'parentDisplayLen',                  type: 'numeral', label: 'Длина блока parent' },
     { path: 'sort.liftTags',                     type: 'list',    label: 'Sort: lift-теги (вверх)' },
     { path: 'sort.dropTags',                     type: 'list',    label: 'Sort: drop-теги (вниз)' },
+    { path: 'sort.by',                           type: 'select',  label: 'Sort: ключ',           values: [null, 'created'] },
+    { path: 'sort.dir',                          type: 'select',  label: 'Sort: направление',    values: ['asc', 'desc'] },
     { path: 'tagStatuses',                       type: 'json',    label: 'Кастомные статусы для тегов' },
     { path: 'showingTaskFields.parent',          type: 'select',  label: 'Parent: режим', values: [false, 'uid', 'summary'] },
-    { path: 'showingTaskFields.uid',             type: 'select',  label: 'Uid: режим',    values: [false, 'short', 'full'] },
     { path: 'showingTaskFields.categories',      type: 'toggle',  label: 'Показывать теги' },
     { path: 'showingTaskFields.priority',        type: 'toggle',  label: 'Показывать приоритет' },
     { path: 'showingTaskFields.timer',           type: 'toggle',  label: 'Показывать таймер' },
     { path: 'showingTaskFields.hasDescription',  type: 'toggle',  label: 'Иконка описания' },
     { path: 'showingTaskFields.activeSession',   type: 'toggle',  label: 'Активная сессия' },
+    { path: 'showingTaskFields.dateCreated',     type: 'toggle',  label: 'Дата created' },
     { path: 'showingTaskFields.dateDue',         type: 'toggle',  label: 'Дата deadline' },
     { path: 'showingTaskFields.dateStart',       type: 'toggle',  label: 'Дата start' },
     { path: 'showingTaskFields.dateCompleted',   type: 'toggle',  label: 'Дата completed' },

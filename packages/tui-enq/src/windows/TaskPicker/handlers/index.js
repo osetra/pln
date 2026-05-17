@@ -25,6 +25,7 @@ import editPriority from './editing/editPriority.js'
 import editCategories from './editing/editCategories.js'
 import editDate from './editing/editDate.js'
 import changeParent from './editing/changeParent.js'
+import changePredecessor from './editing/changePredecessor.js'
 
 // tasks
 import addTask from './tasks/addTask.js'
@@ -38,7 +39,9 @@ import clearSelection from './selection/clearSelection.js'
 // system
 import showHelp from './system/showHelp.js'
 import showReport from './system/showReport.js'
+import showFlowchart from './system/showFlowchart.js'
 import toggleTimeline from './system/toggleTimeline.js'
+import timelineCursor from './system/timelineCursor.js'
 import refresh from './system/refresh.js'
 import openSettings from './system/openSettings.js'
 
@@ -47,10 +50,10 @@ const handlers = [
     toggleShowOnlyActiveTasks, toggleSubtasks,
     openSearch,
     editDescription, toggleSessionTimer, editSummary, editSummaryInsert, editSummaryAppend,
-    editStatus, editPriority, editCategories, editDate, changeParent,
+    editStatus, editPriority, editCategories, editDate, changeParent, changePredecessor,
     toggleSelection, clearSelection,
     addTask, addSubtask, deleteTask,
-    showHelp, showReport, toggleTimeline, refresh, openSettings
+    showHelp, showReport, showFlowchart, toggleTimeline, timelineCursor, refresh, openSettings
 ]
 
 /** @type {Object.<string, Function>} */

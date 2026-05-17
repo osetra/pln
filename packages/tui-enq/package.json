@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@pln/core": "workspace:*",
+    "beautiful-mermaid": "^1.1.3",
     "enquirer": "^2.4.1"
   }
 }

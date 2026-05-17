@@ -46,5 +46,8 @@
     "TIMER":        "[o]",
     "SOMEDAY":      "[s]",
     "LATER":        "[l]"
-  }
+  },
+  "defaultFilter": [
+    { "field": "status", "value": "NEEDS-ACTION", "combineType": "only" }
+  ]
 }

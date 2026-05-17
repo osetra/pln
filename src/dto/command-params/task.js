@@ -6,17 +6,20 @@ import DateParams from './date.js'
  */
 export default class TaskParams extends DateParams {
     static PROPERTY_TYPES = {
-        uid:         'string',
-        summary:     'string',
-        categories:  'array',
-        status:      'string',
-        description: 'string',
-        priority:    'number',
-        x:           'boolean',
-        o:           'boolean',
-        cancel:      'boolean',
-        parent:      'string',
-        href:        'string',
+        uid:           'string',
+        summary:       'string',
+        categories:    'array',
+        addCategories: 'array',
+        status:        'string',
+        description:   'string',
+        priority:      'number',
+        x:             'boolean',
+        o:             'boolean',
+        cancel:        'boolean',
+        parent:        'string',
+        predecessors:  'array',
+        addPredecessors: 'array',
+        href:          'string',
         ...DateParams.PROPERTY_TYPES,
     }
     /**
@@ -29,8 +32,11 @@ export default class TaskParams extends DateParams {
         /** @type {string|undefined} Краткое содержание задачи (SUMMARY) */
         this.summary     = flags.summary
         
-        /** @type {string[]|undefined} Категории задач (CATEGORIES) */
+        /** @type {string[]|undefined} Категории задач (CATEGORIES) — заменяет существующие */
         this.categories  = flags.categories
+
+        /** @type {string[]|undefined} Категории для дозаписи к существующим (edit) */
+        this.addCategories = flags.addCategories
         
         /** @type {string|undefined} Статус задачи (STATUS) */
         this.status      = flags.status
@@ -55,10 +61,14 @@ export default class TaskParams extends DateParams {
         
         /** @type {string|undefined} UID родителя */
         this.parent      = flags.parent
-        
+
+        /** @type {string[]|undefined} UID предшественников (DEPENDS-ON) — задачи, которые должны быть сделаны до этой */
+        this.predecessors = flags.predecessors
+
+        /** @type {string[]|undefined} UID предшественников для дозаписи (не перезаписывает существующие) */
+        this.addPredecessors = flags.addPredecessors
+
         /** @type {string|undefined} Ссылка на задачу */
         this.href        = flags.href
-
-        if (!this.href && this.uid) this.href = this.uid + '.ics'
     }
 }

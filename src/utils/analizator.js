@@ -6,11 +6,11 @@ import { calculateSessionTime } from './session-calculator.js'
 
 export const analizator = {
     /**
-     * @param {Task[]} tasks 
+     * @param {Task[]} tasks
      * @returns {TaskAnalized[]} tasksAnalized
      */
     analize(tasks) {
-        return tasks.map(task => {
+        const result = tasks.map(task => {
             const { yamlProps, cleanDescription } = this._parseYamlHeader(task.description)
 
             // присваиваем yamlProps, если есть (иначе оставляем существующие customProperties)
@@ -26,6 +26,23 @@ export const analizator = {
             task.customProperties.cleanDescription = cleanDescription
             return task
         })
+
+        // dependsOnStatuses + isBlocked: смотрим завершён ли каждый предшественник
+        const statusByUid = new Map(result.map(t => [t.uid, t.status]))
+        for (const t of result) {
+            if (!t.dependsOn?.length) continue
+            const statuses = {}
+            let blocked = false
+            for (const uid of t.dependsOn) {
+                const s = statusByUid.get(uid) // undefined если не в выборке
+                statuses[uid] = s
+                if (s !== 'COMPLETED' && s !== 'CANCELLED') blocked = true
+            }
+            t.customProperties.dependsOnStatuses = statuses
+            if (blocked) t.customProperties.isBlocked = true
+        }
+
+        return result
     },
 
     /**

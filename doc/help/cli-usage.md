@@ -24,10 +24,12 @@
 | `--priority`   | `-pr`| number | Приоритет              |
 | `--uid`        | `-u` | string | UID задачи             |
 | `--parent`     | `-P` | string | UID родительской задачи |
+| `--predecessors` | `--pre`, `--after` | array | UID задач-предшественников (DEPENDS-ON). Перезаписывает. Можно повторять флаг |
+| `--add-predecessor` | `--ap`, `--add-pre`, `--add-after` | array | Дозаписать предшественника (не затирает существующих). Можно повторять |
 | `--due`        | `-e` | date   | Дедлайн                |
 | `--start`      |      | date   | Дата начала            |
 | `--x`          |      | bool   | Пометить COMPLETED     |
-| `--o`          |      | bool   | Пометить NEEDS-ACTION  |
+| `--o`          |      | bool   | Только открытые (применяет `config.defaultFilter`) |
 | `--cancel`     |      | bool   | Пометить CANCELLED     |
 
 ## Флаги фильтрации (FilterParams)
@@ -56,7 +58,18 @@
 | `--backendFilter`| `-b` | bool   | Фильтрация на сервере           |
 | `--showDescription`| `-sd` | bool | Печатать описание под каждой задачей |
 | `--fullUid`      | `-fu`| bool   | Печатать полные uid (без shortUid) — для edit при коллизиях |
+| `--flowchart`    | `-F` | bool   | ASCII-flowchart по DEPENDS-ON для текущей выборки |
 | `--ink`          |      | bool   | Запустить экспериментальный TUI на ink (`npm i ink react`) |
+
+## Связи задач
+
+Задачи можно сцеплять между собой по нескольким осям:
+
+- **Родитель/подзадача** — `-P <uid>` при `add`/`edit`. Иерархия дерева, рендерится через `treeify`. Глубина показа: `-l`/`-L` (вниз), `-p`/`-up` (вверх).
+- **Блокирующие (DEPENDS-ON / BLOCKS)** — `--predecessors <uid...>` (`--pre`, `--after`) перезаписывает, `--add-predecessor` (`--ap`) дозаписывает. Хранится в iCal как `RELATED-TO;RELTYPE=DEPENDS-ON`, на другой стороне — `BLOCKS`.
+- **Производное `isBlocked`** — `analizator.js` вычисляет статус по `dependsOn`: пока есть незавершённый предшественник, задача тусклая, у завершённых предков — ✓. В `sortTasks` блокированные уходят ниже активных.
+- **Приоритет как связь сортировки** — `--priority`/`-pr` (число). Не структурная связь, но влияет на порядок выдачи и подсветку «следующей» задачи.
+- **Flowchart** — `--flowchart`/`-F` рисует ASCII-граф цепочки по `DEPENDS-ON` для текущей выборки (топосортировка для компактного layout). В TUI — хоткей `F`.
 
 ## Типы фильтров
 
@@ -69,10 +82,24 @@
 
 Порядок применения: add → only → del → иерархия (parents/children).
 
+## Дефолтный фильтр
+
+Когда юзер запускает `pln` без флагов (или с `-o`), применяется `config.defaultFilter` — массив условий формата `Condition` из `src/dto/filter.js`.
+
+```jsonc
+// config.json
+"defaultFilter": [
+  { "field": "status",     "value": "NEEDS-ACTION", "combineType": "only" },
+  { "field": "categories", "value": "trash",         "combineType": "del" }
+]
+```
+
+`combineType`: `add` — OR, `only` — AND, `del` — исключить.
+
 ## Примеры
 
 ```bash
-# Список задач (по умолчанию — только NEEDS-ACTION)
+# Список задач (по умолчанию — config.defaultFilter, обычно status:NEEDS-ACTION)
 pln
 
 # Поиск по названию

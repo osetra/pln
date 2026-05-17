@@ -55,11 +55,20 @@ export class Command {
         if (taskParams.categories) {
             taskProps.categories = taskParams.categories
         }
+        if (taskParams.addCategories) {
+            taskProps.addCategories = taskParams.addCategories
+        }
         if (taskParams.priority || taskParams.priority === 0) {
             taskProps.priority = taskParams.priority
         }
         if (taskParams.parent) {
             taskProps.parent = taskParams.parent
+        }
+        if (taskParams.predecessors) {
+            taskProps.dependsOn = taskParams.predecessors.map(uid => this.short2FullUid(String(uid)))
+        }
+        if (taskParams.addPredecessors) {
+            taskProps.addPredecessors = taskParams.addPredecessors.map(uid => this.short2FullUid(String(uid)))
         }
         if (taskParams.href) {
             taskProps.href = taskParams.href

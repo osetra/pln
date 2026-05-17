@@ -49,6 +49,15 @@ export default class EditCommand extends Command {
             throw new Error(`С uid "${taskProps.uid}" задач не найдено.${hint}`)
         }
 
+        if (taskProps.addCategories?.length) {
+            const base = taskProps.categories ?? originalTask.categories ?? []
+            taskProps.categories = [...new Set([...base, ...taskProps.addCategories])]
+        }
+        if (taskProps.addPredecessors?.length) {
+            const base = taskProps.dependsOn ?? originalTask.dependsOn ?? []
+            taskProps.dependsOn = [...new Set([...base, ...taskProps.addPredecessors])]
+        }
+
         return tasksService.update(originalTask, taskProps)
     }
 }

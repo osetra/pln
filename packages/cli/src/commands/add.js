@@ -17,6 +17,11 @@ export default class AddCommand extends Command {
         const defaultTask = new Task({created: new Date()})
         const taskProps = this.parseTaskParams2TaskProps(this.commandParams.taskParams)
 
+        // позиционные аргументы → summary, если -t/--summary не задан
+        if (!taskProps.summary && this.commandParams.positional?.length) {
+            taskProps.summary = this.commandParams.positional.join(' ')
+        }
+
         const task = {
             ...defaultTask,
             ...taskProps
@@ -27,7 +32,9 @@ export default class AddCommand extends Command {
         }
 
         await tasksService.create(task)
-        consolePrinter.print([task])
+        const ctrl = this.commandParams?.controlParams || {}
+        const uidMode = ctrl.fullUid ? 'full' : ctrl.shortUid ? 'short' : false
+        consolePrinter.print([task], { uidMode })
 
         return task
     }
