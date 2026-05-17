@@ -77,6 +77,11 @@ export default function sortTasks(tasks, opts = {}) {
       if (aC !== bC) return bC - aC
     }
 
+    // 1b. Активная сессия (-was) — наверх среди активных, даже выше liftTags
+    const aActive = !!a.customProperties?.hasActiveSession
+    const bActive = !!b.customProperties?.hasActiveSession
+    if (aActive !== bActive) return aActive ? -1 : 1
+
     // 2. Категориальный уровень
     const aLevel = getCatLevel(a)
     const bLevel = getCatLevel(b)
